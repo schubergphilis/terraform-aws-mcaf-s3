@@ -1,9 +1,5 @@
-locals {
-  name = "${var.stack}-${var.name}"
-}
-
 resource "aws_s3_bucket" "default" {
-  bucket        = local.name
+  bucket        = var.name
   acl           = var.acl
   policy        = var.policy
   region        = var.region

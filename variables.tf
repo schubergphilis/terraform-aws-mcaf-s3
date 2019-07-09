@@ -3,11 +3,6 @@ variable "name" {
   description = "The name of the bucket"
 }
 
-variable "stack" {
-  type        = string
-  description = "The stack name of the bucket"
-}
-
 variable "acl" {
   type        = string
   default     = "private"
