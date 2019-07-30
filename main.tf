@@ -5,6 +5,7 @@ resource aws_s3_bucket default {
   region        = var.region
   force_destroy = var.force_destroy
   tags          = var.tags
+  cors_rule     = var.cors_rule
 
   versioning {
     enabled = var.versioning

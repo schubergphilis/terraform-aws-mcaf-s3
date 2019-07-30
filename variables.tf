@@ -49,3 +49,15 @@ variable tags {
   type        = map(string)
   description = "A mapping of tags to assign to the bucket"
 }
+
+variable cors_rule {
+  type        = object({
+    allowed_headers = list(string)
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = list(string)
+    max_age_seconds = number
+  })
+  default     = null
+  description = "The CORS rule for a s3 bucket. (can be null)"
+}
