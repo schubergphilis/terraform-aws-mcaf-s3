@@ -9,22 +9,34 @@ variable acl {
   description = "The canned ACL to apply, defaults to `private`"
 }
 
+variable force_destroy {
+  type        = bool
+  default     = false
+  description = "A boolean that indicates all objects should be deleted when deleting the bucket"
+}
+
 variable policy {
   type        = string
-  default     = ""
+  default     = null
   description = "A valid bucket policy JSON document"
 }
 
 variable region {
   type        = string
-  default     = ""
+  default     = null
   description = "The AWS region this bucket should reside in, defaults to the region used by the callee"
 }
 
-variable force_destroy {
-  type        = bool
-  default     = false
-  description = "A boolean that indicates all objects should be deleted when deleting the bucket"
+variable cors_rule {
+  type = object({
+    allowed_headers = list(string)
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = list(string)
+    max_age_seconds = number
+  })
+  default     = null
+  description = "The CORS rule for the s3 bucket"
 }
 
 variable versioning {
@@ -35,7 +47,7 @@ variable versioning {
 
 variable kms_key_id {
   type        = string
-  default     = ""
+  default     = null
   description = "The AWS KMS key ID used for the `SSE-KMS` encryption"
 }
 
