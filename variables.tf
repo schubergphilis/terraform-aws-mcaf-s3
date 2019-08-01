@@ -39,6 +39,12 @@ variable cors_rule {
   description = "The CORS rule for the s3 bucket"
 }
 
+variable public_access {
+  type        = bool
+  default     = false
+  description = "Manages S3 bucket-level Public Access Block configuration"
+}
+
 variable versioning {
   type        = bool
   default     = false
