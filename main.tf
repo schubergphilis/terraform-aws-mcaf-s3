@@ -2,7 +2,7 @@ locals {
   cors_rule = var.cors_rule != null ? { create = true } : {}
 }
 
-resource aws_s3_bucket default {
+resource "aws_s3_bucket" "default" {
   bucket        = var.name
   acl           = var.acl
   force_destroy = var.force_destroy
@@ -30,15 +30,14 @@ resource aws_s3_bucket default {
     rule {
       apply_server_side_encryption_by_default {
         kms_master_key_id = var.kms_key_id
-        sse_algorithm     = var.sse_algorithm
+        sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
       }
     }
   }
 }
 
-resource aws_s3_bucket_public_access_block default {
-  bucket = aws_s3_bucket.default.id
-
+resource "aws_s3_bucket_public_access_block" "default" {
+  bucket                  = aws_s3_bucket.default.id
   block_public_acls       = ! var.public_access
   block_public_policy     = ! var.public_access
   ignore_public_acls      = ! var.public_access
