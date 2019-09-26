@@ -9,6 +9,27 @@ variable "acl" {
   description = "The canned ACL to apply, defaults to `private`"
 }
 
+variable "block_public_acls" {
+  type        = bool
+  default     = true
+  description = "Whether Amazon S3 should block public ACLs for this bucket"
+}
+variable "block_public_policy" {
+  type        = bool
+  default     = true
+  description = "Whether Amazon S3 should block public bucket policies for this bucket"
+}
+variable "ignore_public_acls" {
+  type        = bool
+  default     = true
+  description = "Whether Amazon S3 should ignore public ACLs for this bucket"
+}
+variable "restrict_public_buckets" {
+  type        = bool
+  default     = true
+  description = "Whether Amazon S3 should restrict public bucket policies for this bucket"
+}
+
 variable "force_destroy" {
   type        = bool
   default     = false
@@ -43,12 +64,6 @@ variable "kms_key_id" {
   type        = string
   default     = null
   description = "The KMS key ID used for the bucket encryption"
-}
-
-variable "public_access" {
-  type        = bool
-  default     = false
-  description = "Manages S3 bucket-level Public Access Block configuration"
 }
 
 variable "versioning" {
