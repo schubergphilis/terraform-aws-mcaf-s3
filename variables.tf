@@ -67,9 +67,15 @@ variable "kms_key_id" {
 }
 
 variable "versioning" {
-  type        = bool
-  default     = false
-  description = "Versioning is a means of keeping multiple variants of an object in the same bucket"
+  type = object({
+    enabled    = bool
+    mfa_delete = bool
+  })
+  default = {
+    enabled    = false
+    mfa_delete = false
+  }
+  description = "The CORS rule for the s3 bucket"
 }
 
 variable "tags" {

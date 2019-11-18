@@ -23,7 +23,8 @@ resource "aws_s3_bucket" "default" {
   }
 
   versioning {
-    enabled = var.versioning
+    enabled    = var.versioning["enabled"]
+    mfa_delete = var.versioning["mfa_delete"]
   }
 
   server_side_encryption_configuration {
