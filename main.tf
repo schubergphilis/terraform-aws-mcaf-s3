@@ -23,19 +23,6 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  versioning {
-    enabled = var.versioning
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = var.kms_key_id
-        sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
-      }
-    }
-  }
-
   dynamic lifecycle_rule {
     for_each = var.lifecycle_rule
 
@@ -48,7 +35,9 @@ resource "aws_s3_bucket" "default" {
 
       # Max 1 block - expiration
       dynamic expiration {
-        for_each = length(keys(lookup(lifecycle_rule.value, "expiration", {}))) == 0 ? [] : [lookup(lifecycle_rule.value, "expiration", {})]
+        for_each = length(
+          keys(lookup(lifecycle_rule.value, "expiration", {}))
+        ) == 0 ? [] : [lookup(lifecycle_rule.value, "expiration", {})]
 
         content {
           date                         = lookup(expiration.value, "date", null)
@@ -70,7 +59,9 @@ resource "aws_s3_bucket" "default" {
 
       # Max 1 block - noncurrent_version_expiration
       dynamic noncurrent_version_expiration {
-        for_each = length(keys(lookup(lifecycle_rule.value, "noncurrent_version_expiration", {}))) == 0 ? [] : [lookup(lifecycle_rule.value, "noncurrent_version_expiration", {})]
+        for_each = length(
+          keys(lookup(lifecycle_rule.value, "noncurrent_version_expiration", {}))
+        ) == 0 ? [] : [lookup(lifecycle_rule.value, "noncurrent_version_expiration", {})]
 
         content {
           days = lookup(noncurrent_version_expiration.value, "days", null)
@@ -105,6 +96,19 @@ resource "aws_s3_bucket" "default" {
         }
       }
     }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = var.kms_key_id
+        sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
+      }
+    }
+  }
+
+  versioning {
+    enabled = var.versioning
   }
 }
 

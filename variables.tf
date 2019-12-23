@@ -30,7 +30,7 @@ variable "cors_rule" {
     max_age_seconds = number
   })
   default     = null
-  description = "The CORS rule for the s3 bucket"
+  description = "The CORS rule for the S3 bucket"
 }
 
 variable "force_destroy" {
@@ -54,7 +54,7 @@ variable "kms_key_id" {
 variable "lifecycle_rule" {
   type        = any
   default     = []
-  description = "List of maps containing configuration of object lifecycle management."
+  description = "List of maps containing lifecycle management configuration settings"
 }
 
 variable "region" {
@@ -71,7 +71,7 @@ variable "replication_configuration" {
     rule_id            = string
   })
   default     = null
-  description = "Object containing bucket replication configuration."
+  description = "Bucket replication configuration settings"
 }
 
 variable "restrict_public_buckets" {
