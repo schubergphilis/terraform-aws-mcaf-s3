@@ -57,6 +57,24 @@ variable "lifecycle_rule" {
   description = "List of maps containing lifecycle management configuration settings"
 }
 
+variable "object_lock_mode" {
+  type        = string
+  default     = ""
+  description = "Bucket object lock mode configuration setting. Needs to be set upon creation of the bucket (required)"
+}
+
+variable "object_lock_years" {
+  type        = number
+  default     = null
+  description = "Bucket object lock years configuration setting. Needs to be set upon creation of the bucket. One or both of 'years' or 'days'"
+}
+
+variable "object_lock_days" {
+  type        = number
+  default     = null
+  description = "Bucket object lock days configuration setting. Needs to be set upon creation of the bucket. One or both of 'years' or 'days'"
+}
+
 variable "region" {
   type        = string
   default     = null
