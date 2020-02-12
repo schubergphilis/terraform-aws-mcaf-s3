@@ -80,6 +80,23 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
+  # Max 1 block - object_lock_configuration
+  dynamic "object_lock_configuration" {
+    for_each = var.object_lock_mode != null ? { create : true } : {}
+
+    content {
+      object_lock_enabled = var.object_lock_mode != null ? "Enabled" : "Disabled"
+
+      rule {
+        default_retention {
+          mode  = var.object_lock_mode
+          years = var.object_lock_years
+          days  = var.object_lock_days
+        }
+      }
+    }
+  }
+
   dynamic replication_configuration {
     for_each = local.replication_configuration
 

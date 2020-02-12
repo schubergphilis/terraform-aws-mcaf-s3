@@ -57,6 +57,24 @@ variable "lifecycle_rule" {
   description = "List of maps containing lifecycle management configuration settings"
 }
 
+variable "object_lock_mode" {
+  type        = string
+  default     = null
+  description = "The default object Lock retention mode to apply to new objects"
+}
+
+variable "object_lock_years" {
+  type        = number
+  default     = null
+  description = "The number of years that you want to specify for the default retention period"
+}
+
+variable "object_lock_days" {
+  type        = number
+  default     = null
+  description = "The number of days that you want to specify for the default retention period"
+}
+
 variable "region" {
   type        = string
   default     = null
