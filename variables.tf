@@ -59,20 +59,20 @@ variable "lifecycle_rule" {
 
 variable "object_lock_mode" {
   type        = string
-  default     = ""
-  description = "Bucket object lock mode configuration setting. Needs to be set upon creation of the bucket (required)"
+  default     = null
+  description = "The default object Lock retention mode to apply to new objects"
 }
 
 variable "object_lock_years" {
   type        = number
   default     = null
-  description = "Bucket object lock years configuration setting. Needs to be set upon creation of the bucket. One or both of 'years' or 'days'"
+  description = "The number of years that you want to specify for the default retention period"
 }
 
 variable "object_lock_days" {
   type        = number
   default     = null
-  description = "Bucket object lock days configuration setting. Needs to be set upon creation of the bucket. One or both of 'years' or 'days'"
+  description = "The number of days that you want to specify for the default retention period"
 }
 
 variable "region" {

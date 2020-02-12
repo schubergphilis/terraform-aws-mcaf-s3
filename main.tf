@@ -82,10 +82,10 @@ resource "aws_s3_bucket" "default" {
 
   # Max 1 block - object_lock_configuration
   dynamic "object_lock_configuration" {
-    for_each = var.object_lock_mode != "" ? [1] : []
+    for_each = var.object_lock_mode != null ? { create : true } : {}
 
     content {
-      object_lock_enabled = var.object_lock_mode != "" ? "Enabled" : "Disabled"
+      object_lock_enabled = var.object_lock_mode != null ? "Enabled" : "Disabled"
 
       rule {
         default_retention {
