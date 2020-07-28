@@ -57,15 +57,6 @@ resource "aws_s3_bucket" "default" {
         }
       }
 
-      dynamic logging {
-        for_each = var.logging
-
-        content {
-          target_bucket = lookup(logging.value, "target_bucket", null)
-          target_prefix = lookup(logging.value, "target_prefix", null)
-        }
-      }
-
       # Max 1 block - noncurrent_version_expiration
       dynamic noncurrent_version_expiration {
         for_each = length(
@@ -86,6 +77,15 @@ resource "aws_s3_bucket" "default" {
           storage_class = noncurrent_version_transition.value.storage_class
         }
       }
+    }
+  }
+
+  dynamic logging {
+    for_each = var.logging
+
+    content {
+      target_bucket = lookup(logging.value, "target_bucket", null)
+      target_prefix = lookup(logging.value, "target_prefix", null)
     }
   }
 
