@@ -57,6 +57,12 @@ variable "lifecycle_rule" {
   description = "List of maps containing lifecycle management configuration settings"
 }
 
+variable "logging" {
+  type        = any
+  default     = []
+  description = "List of maps containing logging configuration settings"
+}
+
 variable "object_lock_mode" {
   type        = string
   default     = null
