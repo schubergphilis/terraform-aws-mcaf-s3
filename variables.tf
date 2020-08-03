@@ -75,12 +75,6 @@ variable "object_lock_days" {
   description = "The number of days that you want to specify for the default retention period"
 }
 
-variable "region" {
-  type        = string
-  default     = null
-  description = "The region this bucket should reside in, defaults to the region used by the callee"
-}
-
 variable "replication_configuration" {
   type = object({
     iam_role_arn       = string

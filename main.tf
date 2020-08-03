@@ -8,7 +8,6 @@ resource "aws_s3_bucket" "default" {
   acl           = var.acl
   force_destroy = var.force_destroy
   policy        = var.policy
-  region        = var.region
   tags          = var.tags
 
   dynamic cors_rule {
