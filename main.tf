@@ -1,5 +1,6 @@
 locals {
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
+  logging_configuration     = var.logging != null ? var.logging : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
 }
 
@@ -81,11 +82,11 @@ resource "aws_s3_bucket" "default" {
   }
 
   dynamic logging {
-    for_each = length(keys(var.logging)) == 0 ? [] : [var.logging]
+    for_each = local.logging_configuration
 
     content {
-      target_bucket = logging.value.target_bucket
-      target_prefix = lookup(logging.value, "target_prefix", null)
+      target_bucket = local.logging_configuration.target_bucket
+      target_prefix = local.logging_configuration.target_prefix
     }
   }
 
