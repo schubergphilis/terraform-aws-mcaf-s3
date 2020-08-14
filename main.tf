@@ -80,13 +80,9 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  dynamic logging {
-    for_each = var.logging
-
-    content {
-      target_bucket = lookup(logging.value, "target_bucket", null)
-      target_prefix = lookup(logging.value, "target_prefix", null)
-    }
+  logging {
+      target_bucket = var.logging_bucket_id
+      target_prefix = var.logging_target_prefix
   }
 
   # Max 1 block - object_lock_configuration
