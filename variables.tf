@@ -57,16 +57,10 @@ variable "lifecycle_rule" {
   description = "List of maps containing lifecycle management configuration settings"
 }
 
-variable "logging_bucket_id" {
-  type        = string
-  default     = null
-  description = "The ID of the bucket where access logs will be sent"
-}
-
-variable "logging_target_prefix" {
-  type        = string
-  default     = null
-  description = "The prefix to assign in the logging bucket for all logs sent"
+variable "logging" {
+  description = "Map containing access bucket logging configuration."
+  type        = map(string)
+  default     = {}
 }
 
 variable "object_lock_mode" {
