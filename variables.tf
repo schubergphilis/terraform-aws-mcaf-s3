@@ -58,9 +58,12 @@ variable "lifecycle_rule" {
 }
 
 variable "logging" {
-  description = "Map containing access bucket logging configuration."
-  type        = map(string)
-  default     = {}
+  type = object({
+    target_bucket = string
+    target_prefix = string
+  })
+  default     = null
+  description = "Logging configuration."
 }
 
 variable "object_lock_mode" {
