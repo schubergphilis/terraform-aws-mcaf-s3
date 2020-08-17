@@ -1,5 +1,6 @@
 locals {
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
+  logging                   = var.logging != null ? { create = true } : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
 }
 
@@ -76,6 +77,15 @@ resource "aws_s3_bucket" "default" {
           storage_class = noncurrent_version_transition.value.storage_class
         }
       }
+    }
+  }
+
+  dynamic logging {
+    for_each = local.logging
+
+    content {
+      target_bucket = var.logging.target_bucket
+      target_prefix = var.logging.target_prefix
     }
   }
 

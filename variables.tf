@@ -57,6 +57,15 @@ variable "lifecycle_rule" {
   description = "List of maps containing lifecycle management configuration settings"
 }
 
+variable "logging" {
+  type = object({
+    target_bucket = string
+    target_prefix = string
+  })
+  default     = null
+  description = "Logging configuration"
+}
+
 variable "object_lock_mode" {
   type        = string
   default     = null
