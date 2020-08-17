@@ -1,6 +1,6 @@
 locals {
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
-  logging_configuration     = var.logging != null ? var.logging : {}
+  logging_configuration     = var.logging != null ? { create = true } : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
 }
 
