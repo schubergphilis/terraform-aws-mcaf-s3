@@ -82,11 +82,11 @@ resource "aws_s3_bucket" "default" {
   }
 
   dynamic logging {
-    for_each = local.logging_configuration
+    for_each = local.logging
 
     content {
-      target_bucket = local.logging_configuration.target_bucket
-      target_prefix = local.logging_configuration.target_prefix
+      target_bucket = var.logging.target_bucket
+      target_prefix = var.logging.target_prefix
     }
   }
 
