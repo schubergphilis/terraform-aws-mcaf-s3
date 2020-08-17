@@ -63,7 +63,7 @@ variable "logging" {
     target_prefix = string
   })
   default     = null
-  description = "Logging configuration."
+  description = "Logging configuration"
 }
 
 variable "object_lock_mode" {
