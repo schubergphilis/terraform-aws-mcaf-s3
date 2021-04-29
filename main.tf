@@ -11,7 +11,7 @@ resource "aws_s3_bucket" "default" {
   policy        = var.policy
   tags          = var.tags
 
-  dynamic cors_rule {
+  dynamic "cors_rule" {
     for_each = local.cors_rule
 
     content {
@@ -23,7 +23,7 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  dynamic lifecycle_rule {
+  dynamic "lifecycle_rule" {
     for_each = var.lifecycle_rule
 
     content {
@@ -34,7 +34,7 @@ resource "aws_s3_bucket" "default" {
       enabled                                = lifecycle_rule.value.enabled
 
       # Max 1 block - expiration
-      dynamic expiration {
+      dynamic "expiration" {
         for_each = length(
           keys(lookup(lifecycle_rule.value, "expiration", {}))
         ) == 0 ? [] : [lookup(lifecycle_rule.value, "expiration", {})]
@@ -47,7 +47,7 @@ resource "aws_s3_bucket" "default" {
       }
 
       # Several blocks - transition
-      dynamic transition {
+      dynamic "transition" {
         for_each = lookup(lifecycle_rule.value, "transition", [])
 
         content {
@@ -58,7 +58,7 @@ resource "aws_s3_bucket" "default" {
       }
 
       # Max 1 block - noncurrent_version_expiration
-      dynamic noncurrent_version_expiration {
+      dynamic "noncurrent_version_expiration" {
         for_each = length(
           keys(lookup(lifecycle_rule.value, "noncurrent_version_expiration", {}))
         ) == 0 ? [] : [lookup(lifecycle_rule.value, "noncurrent_version_expiration", {})]
@@ -69,7 +69,7 @@ resource "aws_s3_bucket" "default" {
       }
 
       # Several blocks - noncurrent_version_transition
-      dynamic noncurrent_version_transition {
+      dynamic "noncurrent_version_transition" {
         for_each = lookup(lifecycle_rule.value, "noncurrent_version_transition", [])
 
         content {
@@ -80,7 +80,8 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  dynamic logging {
+  #tfsec:ignore:AWS002
+  dynamic "logging" {
     for_each = local.logging
 
     content {
@@ -106,7 +107,7 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  dynamic replication_configuration {
+  dynamic "replication_configuration" {
     for_each = local.replication_configuration
 
     content {
@@ -133,6 +134,7 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
+  #tfsec:ignore:AWS077
   versioning {
     enabled = var.versioning
   }
