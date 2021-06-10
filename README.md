@@ -18,6 +18,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | name | The name of the bucket | `string` | n/a | yes |
+| tags | A mapping of tags to assign to the bucket | `map(string)` | n/a | yes |
 | acl | The canned ACL to apply, defaults to `private` | `string` | `"private"` | no |
 | block\_public\_acls | Whether Amazon S3 should block public ACLs for this bucket | `bool` | `true` | no |
 | block\_public\_policy | Whether Amazon S3 should block public bucket policies for this bucket | `bool` | `true` | no |
@@ -33,7 +34,6 @@
 | policy | A valid bucket policy JSON document | `string` | `null` | no |
 | replication\_configuration | Bucket replication configuration settings | <pre>object({<br>    iam_role_arn       = string<br>    dest_bucket        = string<br>    dest_storage_class = string<br>    rule_id            = string<br>  })</pre> | `null` | no |
 | restrict\_public\_buckets | Whether Amazon S3 should restrict public bucket policies for this bucket | `bool` | `true` | no |
-| tags | A mapping of tags to assign to the bucket | `map(string)` | `null` | no |
 | versioning | Versioning is a means of keeping multiple variants of an object in the same bucket | `bool` | `false` | no |
 
 ## Outputs
