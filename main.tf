@@ -4,11 +4,33 @@ locals {
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
 }
 
+data "aws_iam_policy_document" "bucket_policy" {
+  source_json = var.policy
+
+  statement {
+    sid     = "AllowSSLRequestsOnly"
+    actions = ["s3:*"]
+    effect  = "Deny"
+    resources = [
+      "arn:aws:s3:::${var.name}",
+      "arn:aws:s3:::${var.name}/*"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+  }
+}
 resource "aws_s3_bucket" "default" {
   bucket        = var.name
   acl           = var.acl
   force_destroy = var.force_destroy
-  policy        = var.policy
+  policy        = data.aws_iam_policy_document.bucket_policy.json
   tags          = var.tags
 
   dynamic "cors_rule" {
