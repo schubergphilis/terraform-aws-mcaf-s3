@@ -1,4 +1,5 @@
 locals {
+  bucket_key_enabled        = var.kms_key_id != null ? true : false
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
   logging                   = var.logging != null ? { create = true } : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
@@ -149,6 +150,8 @@ resource "aws_s3_bucket" "default" {
 
   server_side_encryption_configuration {
     rule {
+      bucket_key_enabled = local.bucket_key_enabled
+
       apply_server_side_encryption_by_default {
         kms_master_key_id = var.kms_key_id
         sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
