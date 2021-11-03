@@ -1,4 +1,5 @@
 locals {
+  bucket_key_enabled        = var.kms_key_id != null ? true : false
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
   logging                   = var.logging != null ? { create = true } : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
@@ -26,6 +27,8 @@ data "aws_iam_policy_document" "bucket_policy" {
     }
   }
 }
+
+// tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "default" {
   bucket        = var.name
   acl           = var.acl
@@ -55,7 +58,7 @@ resource "aws_s3_bucket" "default" {
       abort_incomplete_multipart_upload_days = lookup(lifecycle_rule.value, "abort_incomplete_multipart_upload_days", null)
       enabled                                = lifecycle_rule.value.enabled
 
-      # Max 1 block - expiration
+      // Max 1 block - expiration
       dynamic "expiration" {
         for_each = length(
           keys(lookup(lifecycle_rule.value, "expiration", {}))
@@ -68,7 +71,7 @@ resource "aws_s3_bucket" "default" {
         }
       }
 
-      # Several blocks - transition
+      // Several blocks - transition
       dynamic "transition" {
         for_each = lookup(lifecycle_rule.value, "transition", [])
 
@@ -79,7 +82,7 @@ resource "aws_s3_bucket" "default" {
         }
       }
 
-      # Max 1 block - noncurrent_version_expiration
+      // Max 1 block - noncurrent_version_expiration
       dynamic "noncurrent_version_expiration" {
         for_each = length(
           keys(lookup(lifecycle_rule.value, "noncurrent_version_expiration", {}))
@@ -90,7 +93,7 @@ resource "aws_s3_bucket" "default" {
         }
       }
 
-      # Several blocks - noncurrent_version_transition
+      // Several blocks - noncurrent_version_transition
       dynamic "noncurrent_version_transition" {
         for_each = lookup(lifecycle_rule.value, "noncurrent_version_transition", [])
 
@@ -102,7 +105,6 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  #tfsec:ignore:AWS002
   dynamic "logging" {
     for_each = local.logging
 
@@ -112,7 +114,7 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  # Max 1 block - object_lock_configuration
+  // Max 1 block - object_lock_configuration
   dynamic "object_lock_configuration" {
     for_each = var.object_lock_mode != null ? { create : true } : {}
 
@@ -149,6 +151,8 @@ resource "aws_s3_bucket" "default" {
 
   server_side_encryption_configuration {
     rule {
+      bucket_key_enabled = local.bucket_key_enabled
+
       apply_server_side_encryption_by_default {
         kms_master_key_id = var.kms_key_id
         sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
@@ -156,7 +160,6 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  #tfsec:ignore:AWS077
   versioning {
     enabled = var.versioning
   }
