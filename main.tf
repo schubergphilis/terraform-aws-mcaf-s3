@@ -27,6 +27,8 @@ data "aws_iam_policy_document" "bucket_policy" {
     }
   }
 }
+
+#tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "default" {
   bucket        = var.name
   acl           = var.acl
@@ -103,7 +105,6 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  #tfsec:ignore:AWS002
   dynamic "logging" {
     for_each = local.logging
 
@@ -159,7 +160,6 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  #tfsec:ignore:AWS077
   versioning {
     enabled = var.versioning
   }
