@@ -108,8 +108,8 @@ variable "policy" {
 }
 
 variable "versioning" {
-  type        = bool
-  default     = false
+  type        = string
+  default     = "Suspended"
   description = "Versioning is a means of keeping multiple variants of an object in the same bucket"
 }
 
