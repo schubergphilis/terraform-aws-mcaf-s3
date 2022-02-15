@@ -6,12 +6,13 @@
 | Name | Version |
 |------|---------|
 | terraform | >= 0.12.0 |
+| aws | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | >= 4.0.0 |
 
 ## Inputs
 
@@ -34,7 +35,7 @@
 | policy | A valid bucket policy JSON document | `string` | `null` | no |
 | replication\_configuration | Bucket replication configuration settings | <pre>object({<br>    iam_role_arn       = string<br>    dest_bucket        = string<br>    dest_storage_class = string<br>    rule_id            = string<br>  })</pre> | `null` | no |
 | restrict\_public\_buckets | Whether Amazon S3 should restrict public bucket policies for this bucket | `bool` | `true` | no |
-| versioning | Versioning is a means of keeping multiple variants of an object in the same bucket | `bool` | `false` | no |
+| versioning | Versioning is a means of keeping multiple variants of an object in the same bucket | `string` | `"Suspended"` | no |
 
 ## Outputs
 
