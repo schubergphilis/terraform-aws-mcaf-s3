@@ -65,3 +65,6 @@ jobs:
         uses: actions/checkout@master
       - name: Terraform security scan
         uses: aquasecurity/tfsec-pr-commenter-action@v1.0.5
+        with:
+          tfsec_args: --soft-fail
+          github_token: ${{ github.token }}
