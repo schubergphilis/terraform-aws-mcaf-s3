@@ -6,12 +6,13 @@
 | Name | Version |
 |------|---------|
 | terraform | >= 0.12.0 |
+| aws | < 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | < 4.0.0 |
 
 ## Inputs
 
