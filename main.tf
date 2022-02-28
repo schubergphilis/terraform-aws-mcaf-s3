@@ -1,9 +1,9 @@
 locals {
   bucket_key_enabled        = var.kms_key_id != null ? true : false
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
+  logging                   = var.logging != null ? { create = true } : {}
   logging_permissions       = try(var.logging.target_bucket == null, false) ? { create = true } : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
-  logging                   = var.logging != null ? { create = true } : {}
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
