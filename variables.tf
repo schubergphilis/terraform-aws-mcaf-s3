@@ -62,8 +62,11 @@ variable "logging" {
     target_bucket = string
     target_prefix = string
   })
-  default     = null
-  description = "Logging configuration"
+  default = {
+    target_bucket = null
+    target_prefix = "s3_access_logs"
+  }
+  description = "Logging configuration. Default is logging in the bucket itelf"
 }
 
 variable "object_lock_mode" {

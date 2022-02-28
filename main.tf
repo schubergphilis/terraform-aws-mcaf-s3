@@ -1,12 +1,9 @@
 locals {
   bucket_key_enabled        = var.kms_key_id != null ? true : false
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
-  logging_permissions       = var.logging == null ? { create = true } : {}
+  logging_permissions       = try(var.logging.target_bucket == null, false) ? { create = true } : {}
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
-  logging = var.logging != null ? var.logging : {
-    target_bucket = var.name
-    target_prefix = "s3_access_logs"
-  }
+  logging                   = var.logging != null ? { create = true } : {}
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -39,7 +36,7 @@ data "aws_iam_policy_document" "bucket_policy" {
       actions = ["s3:PutObject"]
       effect  = "Allow"
       resources = [
-        "arn:aws:s3:::${local.logging.target_bucket}/*"
+        "arn:aws:s3:::${var.name}/*"
       ]
       principals {
         type        = "Service"
@@ -130,8 +127,8 @@ resource "aws_s3_bucket" "default" {
     for_each = local.logging
 
     content {
-      target_bucket = local.logging.target_bucket
-      target_prefix = local.logging.target_prefix
+      target_bucket = var.logging.target_bucket == null ? var.name : var.logging.target_bucket
+      target_prefix = var.logging.target_prefix
     }
   }
 
