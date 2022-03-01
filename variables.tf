@@ -64,7 +64,7 @@ variable "logging" {
   })
   default = {
     target_bucket = null
-    target_prefix = "s3_access_logs"
+    target_prefix = "s3_access_logs/"
   }
   description = "Logging configuration, defaults to logging to the bucket itself"
 }
