@@ -104,10 +104,10 @@ variable "restrict_public_buckets" {
   description = "Whether Amazon S3 should restrict public bucket policies for this bucket"
 }
 
-variable "policy" {
-  type        = string
-  default     = null
-  description = "A valid bucket policy JSON document"
+variable "policies" {
+  type        = list(string)
+  default     = []
+  description = "A list of valid bucket policy JSON documents"
 }
 
 variable "versioning" {
