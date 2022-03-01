@@ -5,14 +5,14 @@
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.0 |
-| aws | < 4.0.0 |
+| terraform | >= 0.13.0 |
+| aws | > 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | < 4.0.0 |
+| aws | > 4.0.0 |
 
 ## Inputs
 
@@ -32,7 +32,7 @@
 | object\_lock\_days | The number of days that you want to specify for the default retention period | `number` | `null` | no |
 | object\_lock\_mode | The default object Lock retention mode to apply to new objects | `string` | `null` | no |
 | object\_lock\_years | The number of years that you want to specify for the default retention period | `number` | `null` | no |
-| policy | A valid bucket policy JSON document | `string` | `null` | no |
+| policies | A list of valid bucket policy JSON documents | `list(string)` | `[]` | no |
 | replication\_configuration | Bucket replication configuration settings | <pre>object({<br>    iam_role_arn       = string<br>    dest_bucket        = string<br>    dest_storage_class = string<br>    rule_id            = string<br>  })</pre> | `null` | no |
 | restrict\_public\_buckets | Whether Amazon S3 should restrict public bucket policies for this bucket | `bool` | `true` | no |
 | versioning | Versioning is a means of keeping multiple variants of an object in the same bucket | `bool` | `false` | no |
