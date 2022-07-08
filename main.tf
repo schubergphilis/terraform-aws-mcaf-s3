@@ -3,6 +3,7 @@ locals {
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
   logging                   = var.logging != null ? { create = true } : {}
   logging_permissions       = try(var.logging.target_bucket == null, false) ? { create = true } : {}
+  object_lock_configuration = var.object_lock_mode != null ? { create : true } : {}
   policy                    = var.policy != null ? [var.policy] : null
   replication_configuration = var.replication_configuration != null ? { create = true } : {}
 }
@@ -48,26 +49,10 @@ data "aws_iam_policy_document" "bucket_policy" {
 }
 
 resource "aws_s3_bucket" "default" {
-  bucket        = var.name
-  force_destroy = var.force_destroy
-  tags          = var.tags
-
-  // Max 1 block - object_lock_configuration
-  dynamic "object_lock_configuration" {
-    for_each = var.object_lock_mode != null ? { create : true } : {}
-
-    content {
-      object_lock_enabled = var.object_lock_mode != null ? "Enabled" : "Disabled"
-
-      rule {
-        default_retention {
-          mode  = var.object_lock_mode
-          years = var.object_lock_years
-          days  = var.object_lock_days
-        }
-      }
-    }
-  }
+  bucket              = var.name
+  force_destroy       = var.force_destroy
+  object_lock_enabled = var.object_lock_mode != null ? true : false
+  tags                = var.tags
 }
 
 resource "aws_s3_bucket_acl" "default" {
@@ -160,6 +145,19 @@ resource "aws_s3_bucket_logging" "default" {
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.logging.target_bucket == null ? var.name : var.logging.target_bucket
   target_prefix = var.logging.target_prefix
+}
+
+resource "aws_s3_bucket_object_lock_configuration" "default" {
+  for_each = local.object_lock_configuration
+  bucket   = aws_s3_bucket.default.bucket
+
+  rule {
+    default_retention {
+      mode  = var.object_lock_mode
+      years = var.object_lock_years
+      days  = var.object_lock_days
+    }
+  }
 }
 
 resource "aws_s3_bucket_replication_configuration" "default" {
