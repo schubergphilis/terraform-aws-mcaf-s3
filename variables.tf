@@ -45,10 +45,10 @@ variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket"
 }
 
-variable "kms_key_id" {
+variable "kms_key_arn" {
   type        = string
   default     = null
-  description = "The KMS key ID used for the bucket encryption"
+  description = "The KMS key ARN used for the bucket encryption"
 }
 
 variable "lifecycle_rule" {
