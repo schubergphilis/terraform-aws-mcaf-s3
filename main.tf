@@ -1,5 +1,5 @@
 locals {
-  bucket_key_enabled        = var.kms_key_id != null ? true : false
+  bucket_key_enabled        = var.kms_key_arn != null ? true : false
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
   logging                   = var.logging != null ? { create = true } : {}
   logging_permissions       = try(var.logging.target_bucket == null, false) ? { create = true } : {}
@@ -185,8 +185,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
     bucket_key_enabled = local.bucket_key_enabled
 
     apply_server_side_encryption_by_default {
-      kms_master_key_id = var.kms_key_id
-      sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
+      kms_master_key_id = var.kms_key_arn
+      sse_algorithm     = var.kms_key_arn != null ? "aws:kms" : "AES256"
     }
   }
 }
