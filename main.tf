@@ -85,7 +85,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
     content {
       id     = try(rule.value.id, null)
       status = try(rule.value.status, "Enabled")
-      
+
       dynamic "filter" {
         for_each = try([rule.value.prefix], [])
 
