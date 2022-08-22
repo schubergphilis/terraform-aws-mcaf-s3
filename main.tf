@@ -1,6 +1,7 @@
 locals {
   bucket_key_enabled        = var.kms_key_arn != null ? true : false
   cors_rule                 = var.cors_rule != null ? { create = true } : {}
+  lifecycle_rules           = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
   logging                   = var.logging != null ? { create = true } : {}
   logging_permissions       = try(var.logging.target_bucket == null, false) ? { create = true } : {}
   object_lock_configuration = var.object_lock_mode != null ? { create : true } : {}
@@ -74,67 +75,70 @@ resource "aws_s3_bucket_cors_configuration" "default" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
-  count  = length(var.lifecycle_rule)
+  count = length(local.lifecycle_rules) > 0 ? 1 : 0
+
   bucket = aws_s3_bucket.default.bucket
 
-  rule {
-    id     = try(var.lifecycle_rule[count.index]["id"], null)
-    status = try(var.lifecycle_rule[count.index]["status"], "Enabled")
+  dynamic "rule" {
+    for_each = local.lifecycle_rules
 
-    dynamic "filter" {
-      for_each = try([var.lifecycle_rule[count.index]["prefix"]], {})
+    content {
+      id     = try(rule.value.id, null)
+      status = try(rule.value.status, "Enabled")
 
-      content {
-        prefix = filter.value
+      dynamic "filter" {
+        for_each = try([rule.value.prefix], [])
+
+        content {
+          prefix = try(filter.value, null)
+        }
       }
-    }
 
-    dynamic "abort_incomplete_multipart_upload" {
-      for_each = try([var.lifecycle_rule[count.index]["abort_incomplete_multipart_upload"]], {})
+      dynamic "abort_incomplete_multipart_upload" {
+        for_each = try(flatten([rule.value.abort_incomplete_multipart_upload]), [])
 
-      content {
-        days_after_initiation = lookup(abort_incomplete_multipart_upload.value, "days_after_initiation", null)
+        content {
+          days_after_initiation = try(abort_incomplete_multipart_upload.value.days_after_initiation, null)
+        }
       }
-    }
 
-    dynamic "expiration" {
-      for_each = try([var.lifecycle_rule[count.index]["expiration"]], {})
+      dynamic "expiration" {
+        for_each = try(flatten([rule.value.expiration]), [])
 
-      content {
-        date                         = lookup(expiration.value, "date", null)
-        days                         = lookup(expiration.value, "days", null)
-        expired_object_delete_marker = lookup(expiration.value, "expired_object_delete_marker", null)
+        content {
+          date                         = try(expiration.value.date, null)
+          days                         = try(expiration.value.days, null)
+          expired_object_delete_marker = try(expiration.value.expired_object_delete_marker, null)
+        }
       }
-    }
 
-    // Max 1 block - noncurrent_version_expiration
-    dynamic "noncurrent_version_expiration" {
-      for_each = try([var.lifecycle_rule[count.index]["noncurrent_version_expiration"]], {})
+      dynamic "noncurrent_version_expiration" {
+        for_each = try(flatten([rule.value.noncurrent_version_expiration]), [])
 
-      content {
-        newer_noncurrent_versions = lookup(noncurrent_version_expiration.value, "newer_noncurrent_versions", null)
-        noncurrent_days           = lookup(noncurrent_version_expiration.value, "noncurrent_days", null)
+        content {
+          newer_noncurrent_versions = try(noncurrent_version_expiration.value.newer_noncurrent_versions, null)
+          noncurrent_days           = try(noncurrent_version_expiration.value.noncurrent_days, null)
+        }
       }
-    }
 
-    // Several blocks - noncurrent_version_transition
-    dynamic "noncurrent_version_transition" {
-      for_each = try([var.lifecycle_rule[count.index]["noncurrent_version_transition"]], {})
+      dynamic "noncurrent_version_transition" {
+        for_each = try(flatten([rule.value.noncurrent_version_transition]), [])
 
-      content {
-        newer_noncurrent_versions = lookup(noncurrent_version_transition.value, "newer_noncurrent_versions", null)
-        noncurrent_days           = lookup(noncurrent_version_transition.value, "noncurrent_days", null)
-        storage_class             = noncurrent_version_transition.value.storage_class
+        content {
+          newer_noncurrent_versions = try(noncurrent_version_transition.value.newer_noncurrent_versions, null)
+          noncurrent_days           = try(noncurrent_version_transition.value.noncurrent_days, null)
+          storage_class             = noncurrent_version_transition.value.storage_class
+        }
       }
-    }
 
-    dynamic "transition" {
-      for_each = try([var.lifecycle_rule[count.index]["transition"]], {})
+      dynamic "transition" {
+        for_each = try(flatten([rule.value.transition]), [])
 
-      content {
-        date          = lookup(transition.value, "date", null)
-        days          = lookup(transition.value, "days", null)
-        storage_class = transition.value.storage_class
+        content {
+          date          = try(transition.value.date, null)
+          days          = try(transition.value.days, null)
+          storage_class = transition.value.storage_class
+        }
       }
     }
   }
