@@ -64,6 +64,7 @@ resource "aws_s3_bucket_acl" "default" {
 
 resource "aws_s3_bucket_ownership_controls" "default" {
   count  = var.is_bucket_ownership_enforced ? 1 : 0
+  bucket = aws_s3_bucket.default.id
   rule {
     object_ownership = "BucketOwnerEnforced"
   }
