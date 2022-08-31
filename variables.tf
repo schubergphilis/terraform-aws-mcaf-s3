@@ -45,10 +45,10 @@ variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket"
 }
 
-variable "is_acl_enabled" {
+variable "is_bucket_ownership_enforced" {
   type        = bool
   default     = false
-  description = "Whether ACLs need to be enabled for a bucket"
+  description = "Whether ACLs should be disabled for S3 bucket and BucketOwnerEnforced object ownership is applied"
 }
 
 
