@@ -26,6 +26,7 @@
 | cors\_rule | The CORS rule for the S3 bucket | <pre>object({<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = list(string)<br>    max_age_seconds = number<br>  })</pre> | `null` | no |
 | force\_destroy | A boolean that indicates all objects should be deleted when deleting the bucket | `bool` | `false` | no |
 | ignore\_public\_acls | Whether Amazon S3 should ignore public ACLs for this bucket | `bool` | `true` | no |
+| is\_acl\_enabled | Whether Amazon S3 should enable ACLs for this bucket | `bool` | `true` | no |
 | kms\_key\_arn | The KMS key ARN used for the bucket encryption | `string` | `null` | no |
 | lifecycle\_rule | List of maps containing lifecycle management configuration settings | `any` | `[]` | no |
 | logging | Logging configuration, defaults to logging to the bucket itself | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | <pre>{<br>  "target_bucket": null,<br>  "target_prefix": "s3_access_logs/"<br>}</pre> | no |
