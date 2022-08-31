@@ -45,6 +45,13 @@ variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket"
 }
 
+variable "is_acl_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether ACLs need to be enabled for a bucket"
+}
+
+
 variable "kms_key_arn" {
   type        = string
   default     = null

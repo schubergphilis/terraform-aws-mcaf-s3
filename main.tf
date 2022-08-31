@@ -57,6 +57,7 @@ resource "aws_s3_bucket" "default" {
 }
 
 resource "aws_s3_bucket_acl" "default" {
+  count  = var.is_acl_enabled ? 1 : 0
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
 }
