@@ -45,12 +45,6 @@ variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket"
 }
 
-variable "object_ownership_type" {
-  type        = string
-  default     = "ObjectWriter"
-  description = "The object ownership type for the objects in S3 Bucket, defaults to Object Writer "
-}
-
 variable "kms_key_arn" {
   type        = string
   default     = null
@@ -91,6 +85,12 @@ variable "object_lock_days" {
   type        = number
   default     = null
   description = "The number of days that you want to specify for the default retention period"
+}
+
+variable "object_ownership_type" {
+  type        = string
+  default     = "ObjectWriter"
+  description = "The object ownership type for the objects in S3 Bucket, defaults to Object Writer "
 }
 
 variable "replication_configuration" {
