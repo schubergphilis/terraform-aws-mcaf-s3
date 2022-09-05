@@ -87,6 +87,12 @@ variable "object_lock_days" {
   description = "The number of days that you want to specify for the default retention period"
 }
 
+variable "object_ownership_type" {
+  type        = string
+  default     = "ObjectWriter"
+  description = "The object ownership type for the objects in S3 Bucket, defaults to Object Writer "
+}
+
 variable "replication_configuration" {
   type = object({
     iam_role_arn       = string

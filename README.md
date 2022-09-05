@@ -29,6 +29,7 @@
 | kms\_key\_arn | The KMS key ARN used for the bucket encryption | `string` | `null` | no |
 | lifecycle\_rule | List of maps containing lifecycle management configuration settings | `any` | `[]` | no |
 | logging | Logging configuration, defaults to logging to the bucket itself | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | <pre>{<br>  "target_bucket": null,<br>  "target_prefix": "s3_access_logs/"<br>}</pre> | no |
+| object\_ownership\_type | Type of object ownership within S3 bucket | `string` | `ObjectWriter` | no |
 | object\_lock\_days | The number of days that you want to specify for the default retention period | `number` | `null` | no |
 | object\_lock\_mode | The default object Lock retention mode to apply to new objects | `string` | `null` | no |
 | object\_lock\_years | The number of years that you want to specify for the default retention period | `number` | `null` | no |

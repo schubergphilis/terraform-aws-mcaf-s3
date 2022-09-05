@@ -57,8 +57,17 @@ resource "aws_s3_bucket" "default" {
 }
 
 resource "aws_s3_bucket_acl" "default" {
+  count  = var.object_ownership_type != "BucketOwnerEnforced" ? 1 : 0
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
+}
+
+resource "aws_s3_bucket_ownership_controls" "default" {
+  count  = var.object_ownership_type == "BucketOwnerPreferred" ? 1 : (var.object_ownership_type == "BucketOwnerEnforced" ? 1 : 0)
+  bucket = aws_s3_bucket.default.id
+  rule {
+    object_ownership = var.object_ownership_type
+  }
 }
 
 resource "aws_s3_bucket_cors_configuration" "default" {
