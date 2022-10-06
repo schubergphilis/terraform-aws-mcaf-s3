@@ -158,6 +158,13 @@ resource "aws_s3_bucket_logging" "default" {
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.logging.target_bucket == null ? var.name : var.logging.target_bucket
   target_prefix = var.logging.target_prefix
+
+  lifecycle {
+    precondition {
+      condition     = var.logging.target_bucket != null || var.object_lock_mode == null
+      error_message = "You're trying to enable logging and have object lock enabled on the same bucket! Object lock prevents server access logs from getting delivered. Either log to a different bucket by using the variable `logging` or remove the object lock configuration with `object_lock_mode == null`."
+    }
+  }
 }
 
 resource "aws_s3_bucket_object_lock_configuration" "default" {
