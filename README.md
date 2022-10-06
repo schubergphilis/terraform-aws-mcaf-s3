@@ -1,5 +1,14 @@
 # terraform-aws-mcaf-s3
 
+## Server access logging to the same bucket
+It's considered best practise to enable server access logging. That is why for compliance reasons we would like to have it enabled. However the default setting in this module is to log to the bucket itself. This may increase the costs as indicated by this message from AWS:
+
+>When your source bucket and target bucket are the same, additional logs are created for the logs that are written to the bucket. These extra logs can increase your storage billing and make it harder to find the logs that you're looking for.
+
+In short: we deemed compliance over costs.
+
+You can configure the bucket to send the logs another bucket by using the variable `logging`.
+
 <!--- BEGIN_TF_DOCS --->
 ## Requirements
 
@@ -44,5 +53,4 @@
 |------|-------------|
 | arn | ARN of the bucket |
 | name | Name of the bucket |
-
 <!--- END_TF_DOCS --->
