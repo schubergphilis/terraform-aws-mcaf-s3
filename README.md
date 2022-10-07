@@ -2,11 +2,12 @@
 
 ## Server access logging
 
-Server access logging provides detailed records for the requests that are made to a bucket and can useful in security and access audits. For this reason it is enabled by default and saves access logs to `s3_access_logs/` in the same bucket. Be aware this can increase the costs as indicated by AWS:
+Server access logging provides detailed records for the requests that are made to a bucket and can useful in security and access audits. However logging to the same bucket is not recommended and is disabled using this module. See AWS' explanation here:
 
-> When your source bucket and target bucket are the same, additional logs are created for the logs that are written to the bucket. These extra logs can increase your storage billing and make it harder to find the logs that you're looking for.
+> Your target bucket should not have server access logging enabled. You can have logs delivered to any bucket that you own that is in the same Region as the source bucket, including the source bucket itself. However, this would cause an infinite loop of logs and is not recommended. For simpler log management, we recommend that you save access logs in a different bucket.
 
-This behaviour can be changed by modifying the `logging` variable, or server access logging can be disabled by setting the value to `null`.
+Source: https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html
+
 
 
 <!--- BEGIN_TF_DOCS --->
