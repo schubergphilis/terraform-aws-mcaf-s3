@@ -1,11 +1,20 @@
 # terraform-aws-mcaf-s3
 
+## Server access logging
+
+Server access logging provides detailed records for the requests that are made to a bucket and can useful in security and access audits. For this reason it is enabled by default and saves access logs to `s3_access_logs/` in the same bucket. Be aware this can increase the costs as indicated by AWS:
+
+> When your source bucket and target bucket are the same, additional logs are created for the logs that are written to the bucket. These extra logs can increase your storage billing and make it harder to find the logs that you're looking for.
+
+This behaviour can be changed by modifying the `logging` variable, or server access logging can be disabled by setting the value to `null`.
+
+
 <!--- BEGIN_TF_DOCS --->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.0 |
+| terraform | >= 1.2.0 |
 | aws | >= 4.9.0 |
 
 ## Providers
@@ -29,10 +38,10 @@
 | kms\_key\_arn | The KMS key ARN used for the bucket encryption | `string` | `null` | no |
 | lifecycle\_rule | List of maps containing lifecycle management configuration settings | `any` | `[]` | no |
 | logging | Logging configuration, defaults to logging to the bucket itself | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | <pre>{<br>  "target_bucket": null,<br>  "target_prefix": "s3_access_logs/"<br>}</pre> | no |
-| object\_ownership\_type | Type of object ownership within S3 bucket | `string` | `ObjectWriter` | no |
 | object\_lock\_days | The number of days that you want to specify for the default retention period | `number` | `null` | no |
 | object\_lock\_mode | The default object Lock retention mode to apply to new objects | `string` | `null` | no |
 | object\_lock\_years | The number of years that you want to specify for the default retention period | `number` | `null` | no |
+| object\_ownership\_type | The object ownership type for the objects in S3 Bucket, defaults to Object Writer | `string` | `"ObjectWriter"` | no |
 | policy | A valid bucket policy JSON document | `string` | `null` | no |
 | replication\_configuration | Bucket replication configuration settings | <pre>object({<br>    iam_role_arn       = string<br>    dest_bucket        = string<br>    dest_storage_class = string<br>    rule_id            = string<br>  })</pre> | `null` | no |
 | restrict\_public\_buckets | Whether Amazon S3 should restrict public bucket policies for this bucket | `bool` | `true` | no |
