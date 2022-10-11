@@ -38,7 +38,8 @@ Source: https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-acce
 | ignore\_public\_acls | Whether Amazon S3 should ignore public ACLs for this bucket | `bool` | `true` | no |
 | kms\_key\_arn | The KMS key ARN used for the bucket encryption | `string` | `null` | no |
 | lifecycle\_rule | List of maps containing lifecycle management configuration settings | `any` | `[]` | no |
-| logging | Logging configuration, defaults to logging to the bucket itself | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | <pre>{<br>  "target_bucket": null,<br>  "target_prefix": "s3_access_logs/"<br>}</pre> | no |
+| logging | Logging configuration, logging is disabled by default | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | <pre>{<br>  "target_bucket": null,<br>  "target_prefix": "s3_access_logs/"<br>}</pre> | no |
+| logging\_source\_bucket\_arns | Configures which source buckets are allowed to log to this bucket. | `list(string)` | `[]` | no |
 | object\_lock\_days | The number of days that you want to specify for the default retention period | `number` | `null` | no |
 | object\_lock\_mode | The default object Lock retention mode to apply to new objects | `string` | `null` | no |
 | object\_lock\_years | The number of years that you want to specify for the default retention period | `number` | `null` | no |
