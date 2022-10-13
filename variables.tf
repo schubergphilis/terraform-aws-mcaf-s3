@@ -66,7 +66,13 @@ variable "logging" {
     target_bucket = null
     target_prefix = "s3_access_logs/"
   }
-  description = "Logging configuration, defaults to logging to the bucket itself"
+  description = "Logging configuration, logging is disabled by default"
+}
+
+variable "logging_source_bucket_arns" {
+  type        = list(string)
+  default     = []
+  description = "Configures which source buckets are allowed to log to this bucket."
 }
 
 variable "object_lock_mode" {
