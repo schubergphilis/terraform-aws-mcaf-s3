@@ -95,8 +95,8 @@ variable "object_lock_days" {
 
 variable "object_ownership_type" {
   type        = string
-  default     = "ObjectWriter"
-  description = "The object ownership type for the objects in S3 Bucket, defaults to Object Writer "
+  default     = "BucketOwnerEnforced"
+  description = "The object ownership type for the objects in S3 Bucket, defaults to BucketOwnerEnforced"
 }
 
 variable "replication_configuration" {
