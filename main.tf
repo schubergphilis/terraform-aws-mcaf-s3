@@ -71,7 +71,7 @@ resource "aws_s3_bucket" "default" {
 }
 
 resource "aws_s3_bucket_acl" "default" {
-  count  = var.object_ownership_type != "BucketOwnerEnforced" ? 1 : 0
+  count  = var.object_ownership_type == "ObjectWriter" ? 1 : 0
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
 }
