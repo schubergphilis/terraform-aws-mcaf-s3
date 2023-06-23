@@ -246,6 +246,7 @@ resource "aws_s3_bucket_public_access_block" "default" {
 
 // tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket_versioning" "default" {
+  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
   bucket = aws_s3_bucket.default.id
 
   versioning_configuration {

@@ -1,16 +1,18 @@
 # terraform-aws-mcaf-s3
 
+Terraform module to create an AWS S3 Bucket.
+
+IMPORTANT: We do not pin modules to versions in our examples. We highly recommend that in your code you pin the version to the exact version you are using so that your infrastructure remains stable.
+
 ## Server access logging
 
 Server access logging provides detailed records for the requests that are made to a bucket and can useful in security and access audits. However logging to the same bucket is not recommended and is disabled using this module. See AWS' explanation here:
 
 > Your target bucket should not have server access logging enabled. You can have logs delivered to any bucket that you own that is in the same Region as the source bucket, including the source bucket itself. However, this would cause an infinite loop of logs and is not recommended. For simpler log management, we recommend that you save access logs in a different bucket.
 
-Source: https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html
+Source: <https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html>
 
-
-
-<!--- BEGIN_TF_DOCS --->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -56,4 +58,8 @@ Source: https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-acce
 | arn | ARN of the bucket |
 | name | Name of the bucket |
 
-<!--- END_TF_DOCS --->
+<!-- END_TF_DOCS -->
+
+## Licensing
+
+100% Open Source and licensed under the Apache License Version 2.0. See [LICENSE](https://github.com/schubergphilis/terraform-aws-mcaf-s3/blob/master/LICENSE) for full details.
