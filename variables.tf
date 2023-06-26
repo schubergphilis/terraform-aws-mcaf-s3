@@ -100,13 +100,13 @@ variable "object_ownership_type" {
 }
 
 variable "replication_configuration" {
-  type = object({
+  type = map(object({
     iam_role_arn       = string
     dest_bucket        = string
     dest_storage_class = string
     rule_id            = string
-  })
-  default     = null
+  }))
+  default     = {}
   description = "Bucket replication configuration settings"
 }
 

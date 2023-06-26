@@ -7,7 +7,6 @@ locals {
   logging_permissions_source_buckets = try(var.logging.target_bucket == var.name, false) ? compact(concat(["arn:aws:s3:::${var.name}"], var.logging_source_bucket_arns)) : var.logging_source_bucket_arns
   object_lock_configuration          = var.object_lock_mode != null ? { create : true } : {}
   policy                             = var.policy != null ? var.policy : null
-  replication_configuration          = var.replication_configuration != null ? { create = true } : {}
 }
 
 data "aws_iam_policy_document" "ssl_policy" {
@@ -201,17 +200,17 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
 }
 
 resource "aws_s3_bucket_replication_configuration" "default" {
-  for_each = local.replication_configuration
-  role     = var.replication_configuration.iam_role_arn
+  for_each = var.replication_configuration
+  role     = each.value.iam_role_arn
   bucket   = aws_s3_bucket.default.id
 
   rule {
-    id     = var.replication_configuration.rule_id
+    id     = each.value.rule_id
     status = "Enabled"
 
     destination {
-      bucket        = var.replication_configuration.dest_bucket
-      storage_class = var.replication_configuration.dest_storage_class
+      bucket        = each.value.dest_bucket
+      storage_class = each.value.dest_storage_class
     }
   }
 
