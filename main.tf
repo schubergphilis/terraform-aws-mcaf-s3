@@ -205,13 +205,17 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   role     = var.replication_configuration.iam_role_arn
   bucket   = aws_s3_bucket.default.id
 
-  rule {
-    id     = var.replication_configuration.rule_id
-    status = "Enabled"
+  dynamic "rule" {
+    for_each = var.replication_configuration.rules
 
-    destination {
-      bucket        = var.replication_configuration.dest_bucket
-      storage_class = var.replication_configuration.dest_storage_class
+    content {
+      id     = rule.value["id"]
+      status = "Enabled"
+
+      destination {
+        bucket        = rule.value["dest_bucket"]
+        storage_class = rule.value["dest_storage_class"]
+      }
     }
   }
 
