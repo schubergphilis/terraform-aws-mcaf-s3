@@ -202,15 +202,23 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
 
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = local.replication_configuration
-  role     = var.replication_configuration.iam_role_arn
-  bucket   = aws_s3_bucket.default.id
+
+  role   = var.replication_configuration.iam_role_arn
+  bucket = aws_s3_bucket.default.id
 
   dynamic "rule" {
     for_each = var.replication_configuration.rules
 
     content {
-      id     = rule.value["id"]
-      status = "Enabled"
+      id       = rule.value["id"]
+      priority = rule.key
+      status   = "Enabled"
+
+      delete_marker_replication {
+        status = "Disabled"
+      }
+
+      filter {}
 
       destination {
         bucket        = rule.value["dest_bucket"]
