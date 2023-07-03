@@ -109,7 +109,7 @@ variable "replication_configuration" {
     }))
   })
   default     = null
-  description = "Bucket replication configuration settings, specify the rule keys as integers as these are used to determine the priority of the rules in case of conflict"
+  description = "Bucket replication configuration settings, specify the rules map keys as integers as these are used to determine the priority of the rules in case of conflict"
 }
 
 variable "restrict_public_buckets" {
