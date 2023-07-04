@@ -5,6 +5,16 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.9.1 - 2023-07-04
+
+### What's Changed
+
+#### 🐛 Bug Fixes
+
+- fix: Error "Number of distinct destination bucket ARNs cannot exceed 1" by adding required properties to rule block to have it parsed as XML schema V2 (#33) @stefanwb
+
+**Full Changelog**: https://github.com/schubergphilis/terraform-aws-mcaf-s3/compare/v0.9.0...v0.9.1
+
 ## v0.9.0 - 2023-06-27
 
 ### What's Changed
