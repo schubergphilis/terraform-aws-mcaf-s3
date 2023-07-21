@@ -200,6 +200,13 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
   }
 }
 
+resource "aws_s3_bucket_notification" "eventbridge" {
+  count = var.eventbridge_enabled ? 1 : 0
+
+  bucket      = aws_s3_bucket.default.id
+  eventbridge = var.eventbridge_enabled
+}
+
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = local.replication_configuration
 
