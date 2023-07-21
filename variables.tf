@@ -33,6 +33,12 @@ variable "cors_rule" {
   description = "The CORS rule for the S3 bucket"
 }
 
+variable "eventbridge_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether to enable Amazon EventBridge notifications"
+}
+
 variable "force_destroy" {
   type        = bool
   default     = false
