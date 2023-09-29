@@ -68,10 +68,7 @@ variable "logging" {
     target_bucket = string
     target_prefix = string
   })
-  default = {
-    target_bucket = null
-    target_prefix = "s3_access_logs/"
-  }
+  default     = null
   description = "Logging configuration, logging is disabled by default"
 }
 

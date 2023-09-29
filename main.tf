@@ -1,13 +1,11 @@
 locals {
-  bucket_key_enabled                 = var.kms_key_arn != null ? true : false
-  cors_rule                          = var.cors_rule != null ? { create = true } : {}
-  lifecycle_rules                    = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
-  logging                            = try(var.logging.target_bucket != null, false) ? { create = true } : {}
-  logging_permissions                = length(local.logging_permissions_source_buckets) > 0 ? { create = true } : {}
-  logging_permissions_source_buckets = try(var.logging.target_bucket == var.name, false) ? compact(concat(["arn:aws:s3:::${var.name}"], var.logging_source_bucket_arns)) : var.logging_source_bucket_arns
-  object_lock_configuration          = var.object_lock_mode != null ? { create : true } : {}
-  policy                             = var.policy != null ? var.policy : null
-  replication_configuration          = var.replication_configuration != null ? { create = true } : {}
+  bucket_key_enabled        = var.kms_key_arn != null ? true : false
+  cors_rule                 = var.cors_rule != null ? { create = true } : {}
+  lifecycle_rules           = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
+  logging_permissions       = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
+  object_lock_configuration = var.object_lock_mode != null ? { create : true } : {}
+  policy                    = var.policy != null ? var.policy : null
+  replication_configuration = var.replication_configuration != null ? { create = true } : {}
 }
 
 data "aws_iam_policy_document" "ssl_policy" {
@@ -49,7 +47,7 @@ data "aws_iam_policy_document" "logging_policy" {
       condition {
         test     = "ArnLike"
         variable = "aws:SourceArn"
-        values   = local.logging_permissions_source_buckets
+        values   = var.logging_source_bucket_arns
       }
     }
   }
@@ -169,7 +167,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 }
 
 resource "aws_s3_bucket_logging" "default" {
-  for_each      = local.logging
+  count         = var.logging != null ? 1 : 0
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.logging.target_bucket
   target_prefix = var.logging.target_prefix
@@ -196,7 +194,7 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
 
   lifecycle {
     precondition {
-      condition     = var.object_lock_mode == null || length(local.logging_permissions_source_buckets) == 0
+      condition     = var.object_lock_mode == null || length(var.logging_source_bucket_arns) == 0
       error_message = "You're trying to allow (other buckets) logging to this bucket and enable object locking on the same bucket! Object lock will prevent server access logs from written to the bucket. Either remove the logging source buckets configuration or remove the object lock configuration."
     }
   }
