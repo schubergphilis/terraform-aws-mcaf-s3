@@ -65,7 +65,7 @@ No modules.
 | <a name="input_ignore_public_acls"></a> [ignore\_public\_acls](#input\_ignore\_public\_acls) | Whether Amazon S3 should ignore public ACLs for this bucket | `bool` | `true` | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The KMS key ARN used for the bucket encryption | `string` | `null` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing lifecycle management configuration settings | `any` | `[]` | no |
-| <a name="input_logging"></a> [logging](#input\_logging) | Logging configuration, logging is disabled by default | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | <pre>{<br>  "target_bucket": null,<br>  "target_prefix": "s3_access_logs/"<br>}</pre> | no |
+| <a name="input_logging"></a> [logging](#input\_logging) | Logging configuration, logging is disabled by default | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | `null` | no |
 | <a name="input_logging_source_bucket_arns"></a> [logging\_source\_bucket\_arns](#input\_logging\_source\_bucket\_arns) | Configures which source buckets are allowed to log to this bucket. | `list(string)` | `[]` | no |
 | <a name="input_object_lock_days"></a> [object\_lock\_days](#input\_object\_lock\_days) | The number of days that you want to specify for the default retention period | `number` | `null` | no |
 | <a name="input_object_lock_mode"></a> [object\_lock\_mode](#input\_object\_lock\_mode) | The default object Lock retention mode to apply to new objects | `string` | `null` | no |
