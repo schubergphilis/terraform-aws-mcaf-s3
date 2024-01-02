@@ -14,8 +14,8 @@ data "aws_iam_policy_document" "ssl_policy" {
     actions = ["s3:*"]
     effect  = "Deny"
     resources = [
-      "arn:aws:s3:::${var.name}",
-      "arn:aws:s3:::${var.name}/*"
+      aws_s3_bucket.default.arn,
+      "${aws_s3_bucket.default.arn}/*"
     ]
     condition {
       test     = "Bool"
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "logging_policy" {
       actions = ["s3:PutObject"]
       effect  = "Allow"
       resources = [
-        "arn:aws:s3:::${var.name}/*"
+        "${aws_s3_bucket.default.arn}/*"
       ]
       principals {
         type        = "Service"
@@ -175,7 +175,7 @@ resource "aws_s3_bucket_logging" "default" {
 
   lifecycle {
     precondition {
-      condition     = var.logging.target_bucket != var.name || var.object_lock_mode == null
+      condition     = var.logging.target_bucket != aws_s3_bucket.default.id || var.object_lock_mode == null
       error_message = "You're trying to enable server access logging and object locking on the same bucket! Object lock will prevent server access logs from written to the bucket. Either log to a different bucket or remove the object lock configuration."
     }
   }
