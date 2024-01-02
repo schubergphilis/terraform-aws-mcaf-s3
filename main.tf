@@ -63,6 +63,7 @@ data "aws_iam_policy_document" "combined" {
 
 resource "aws_s3_bucket" "default" {
   bucket              = var.name
+  bucket_prefix       = var.name_prefix
   force_destroy       = var.force_destroy
   object_lock_enabled = var.object_lock_mode != null ? true : false
   tags                = var.tags

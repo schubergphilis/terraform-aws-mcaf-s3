@@ -2,16 +2,12 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-resource "random_pet" "default" {
-  length = 8
-}
-
 module "log_bucket" {
   #checkov:skip=CKV_AWS_300: false positive https://github.com/bridgecrewio/checkov/issues/5363
   source = "../.."
 
-  name       = "logs-${random_pet.default.id}"
-  versioning = true
+  name_prefix = "logs"
+  versioning  = true
 
   lifecycle_rule = [
     {
