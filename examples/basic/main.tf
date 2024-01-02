@@ -23,7 +23,7 @@ module "log_bucket" {
       }
 
       noncurrent_version_transition = {
-        noncurrent_days = 14
+        noncurrent_days = 30
         storage_class   = "ONEZONE_IA"
       }
     }
