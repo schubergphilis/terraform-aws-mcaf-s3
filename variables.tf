@@ -123,9 +123,12 @@ variable "replication_configuration" {
   type = object({
     iam_role_arn = string
     rules = map(object({
-      id                 = string
-      dest_bucket        = string
-      dest_storage_class = string
+      id                               = string
+      dest_bucket                      = string
+      dest_storage_class               = string
+      replica_kms_key_id               = string
+      replica_modifications_status     = string
+      sse_kms_encrypted_objects_status = string
     }))
   })
   default     = null

@@ -229,8 +229,12 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       filter {}
 
       source_selection_criteria {
-        replica_modifications     = rule.value["replica_modifications"]
-        sse_kms_encrypted_objects = rule.value["sse_kms_encrypted_objects"]
+        replica_modifications {
+          status = rule.value["replica_modifications_status"]
+        }
+        sse_kms_encrypted_objects {
+          status = rule.value["sse_kms_encrypted_objects_status"]
+        }
       }
 
       destination {
