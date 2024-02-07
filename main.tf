@@ -228,9 +228,23 @@ resource "aws_s3_bucket_replication_configuration" "default" {
 
       filter {}
 
+      source_selection_criteria {
+        replica_modifications     = rule.value["replica_modifications"]
+        sse_kms_encrypted_objects = rule.value["sse_kms_encrypted_objects"]
+      }
+
       destination {
         bucket        = rule.value["dest_bucket"]
         storage_class = rule.value["dest_storage_class"]
+        encryption_configuration {
+          replica_kms_key_id = rule.value["replica_kms_key_id"]
+        }
+        replication_time {
+          status = "Enabled"
+          time {
+            minutes = "15"
+          }
+        }
       }
     }
   }
