@@ -97,6 +97,54 @@ resource "aws_s3_bucket_cors_configuration" "default" {
   }
 }
 
+resource "aws_s3_bucket_inventory" "default" {
+  for_each = var.inventory_configuration
+
+  bucket                   = aws_s3_bucket.default.id
+  enabled                  = each.value.enabled
+  included_object_versions = each.value.included_object_versions
+  name                     = each.key
+  optional_fields          = each.value.optional_fields
+
+  destination {
+    bucket {
+      account_id = each.value.destination.account_id
+      bucket_arn = each.value.destination.bucket_arn
+      format     = each.value.destination.format
+      prefix     = each.value.destination.prefix
+
+      encryption {
+        dynamic "sse_kms" {
+          for_each = each.value.destination.encryption.encryption_type == "sse_kms" ? [true] : []
+
+          content {
+            key_id = each.value.destination.encryption.kms_key_id
+          }
+        }
+
+        dynamic "sse_s3" {
+          for_each = each.value.destination.encryption.encryption_type == "sse_s3" ? [true] : []
+
+          content {
+          }
+        }
+      }
+    }
+  }
+
+  schedule {
+    frequency = each.value.frequency
+  }
+
+  dynamic "filter" {
+    for_each = each.value.filter
+
+    content {
+      prefix = each.value.filter.prefix
+    }
+  }
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
   count = length(local.lifecycle_rules) > 0 ? 1 : 0
 
