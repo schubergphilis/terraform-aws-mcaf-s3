@@ -37,6 +37,7 @@ No modules.
 | [aws_s3_bucket.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_acl.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_cors_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_cors_configuration) | resource |
+| [aws_s3_bucket_inventory.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_inventory) | resource |
 | [aws_s3_bucket_lifecycle_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
 | [aws_s3_bucket_notification.eventbridge](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
@@ -62,6 +63,7 @@ No modules.
 | <a name="input_eventbridge_enabled"></a> [eventbridge\_enabled](#input\_eventbridge\_enabled) | Whether to enable Amazon EventBridge notifications. | `bool` | `false` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects should be deleted when deleting the bucket. | `bool` | `false` | no |
 | <a name="input_ignore_public_acls"></a> [ignore\_public\_acls](#input\_ignore\_public\_acls) | Whether Amazon S3 should ignore public ACLs for this bucket. | `bool` | `true` | no |
+| <a name="input_inventory_configuration"></a> [inventory\_configuration](#input\_inventory\_configuration) | Bucket inventory configuration settings | <pre>map(object({<br>    enabled                  = optional(bool, true)<br>    frequency                = optional(string, "Weekly")<br>    included_object_versions = optional(string, "Current")<br>    optional_fields          = optional(list(string), null)<br><br>    destination = object({<br>      account_id = string<br>      bucket_arn = string<br>      format     = optional(string, "Parquet")<br>      prefix     = optional(string, null)<br><br>      encryption = optional(object({<br>        encryption_type = string<br>        kms_key_id      = optional(string, null)<br>        }), {<br>        encryption_type = "sse_s3"<br>      })<br>    })<br><br>    filter = optional(object({<br>      prefix = string<br>      }), {<br>      prefix = null<br>    })<br>  }))</pre> | `{}` | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The KMS key ARN used for the bucket encryption. | `string` | `null` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing lifecycle management configuration settings. | `any` | `[]` | no |
 | <a name="input_logging"></a> [logging](#input\_logging) | Logging configuration, logging is disabled by default. | <pre>object({<br>    target_bucket = string<br>    target_prefix = string<br>  })</pre> | `null` | no |

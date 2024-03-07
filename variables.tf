@@ -68,6 +68,37 @@ variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket."
 }
 
+variable "inventory_configuration" {
+  type = map(object({
+    enabled                  = optional(bool, true)
+    frequency                = optional(string, "Weekly")
+    included_object_versions = optional(string, "Current")
+    optional_fields          = optional(list(string), null)
+
+    destination = object({
+      account_id = string
+      bucket_arn = string
+      format     = optional(string, "Parquet")
+      prefix     = optional(string, null)
+
+      encryption = optional(object({
+        encryption_type = string
+        kms_key_id      = optional(string, null)
+        }), {
+        encryption_type = "sse_s3"
+      })
+    })
+
+    filter = optional(object({
+      prefix = string
+      }), {
+      prefix = null
+    })
+  }))
+  default     = {}
+  description = "Bucket inventory configuration settings"
+}
+
 variable "kms_key_arn" {
   type        = string
   default     = null
