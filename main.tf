@@ -274,11 +274,32 @@ resource "aws_s3_bucket_replication_configuration" "default" {
         status = "Disabled"
       }
 
-      filter {}
+      dynamic "source_selection_criteria" {
 
+        for_each = rule.value.source_selection_criteria != null ? { create = true } : {}
+
+        content {
+          replica_modifications {
+            status = rule.value.source_selection_criteria.replica_modifications
+          }
+          sse_kms_encrypted_objects {
+            status = rule.value.source_selection_criteria.sse_kms_encrypted_objects
+          }
+        }
+      }
+
+      filter {}
       destination {
         bucket        = rule.value["dest_bucket"]
         storage_class = rule.value["dest_storage_class"]
+
+        dynamic "encryption_configuration" {
+          for_each = rule.value.encryption_configuration != null ? { create = true } : {}
+
+          content {
+            replica_kms_key_id = rule.value.encryption_configuration.replica_kms_key_id
+          }
+        }
       }
     }
   }

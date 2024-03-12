@@ -151,7 +151,14 @@ variable "replication_configuration" {
     rules = map(object({
       id                 = string
       dest_bucket        = string
-      dest_storage_class = string
+      dest_storage_class = optional(string, null)
+      source_selection_criteria = optional(object({
+        replica_modifications     = optional(string, null)
+        sse_kms_encrypted_objects = optional(string, null)
+      }))
+      encryption_configuration = optional(object({
+        replica_kms_key_id = optional(string, null)
+      }))
     }))
   })
   default     = null
