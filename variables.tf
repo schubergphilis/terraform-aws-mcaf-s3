@@ -71,6 +71,7 @@ variable "ignore_public_acls" {
 variable "inventory_configuration" {
   type = map(object({
     enabled                  = optional(bool, true)
+    filter_prefix            = optional(string, null)
     frequency                = optional(string, "Weekly")
     included_object_versions = optional(string, "Current")
     optional_fields          = optional(list(string), null)
@@ -87,12 +88,6 @@ variable "inventory_configuration" {
         }), {
         encryption_type = "sse_s3"
       })
-    })
-
-    filter = optional(object({
-      prefix = string
-      }), {
-      prefix = null
     })
   }))
   default     = {}
