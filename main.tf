@@ -115,7 +115,7 @@ resource "aws_s3_bucket_inventory" "default" {
 
       encryption {
         dynamic "sse_kms" {
-          for_each = each.value.destination.encryption.encryption_type == "sse_kms" ? [true] : []
+          for_each = each.value.destination.encryption.encryption_type == "sse_kms" ? { create = true } : {}
 
           content {
             key_id = each.value.destination.encryption.kms_key_id
@@ -123,7 +123,7 @@ resource "aws_s3_bucket_inventory" "default" {
         }
 
         dynamic "sse_s3" {
-          for_each = each.value.destination.encryption.encryption_type == "sse_s3" ? [true] : []
+          for_each = each.value.destination.encryption.encryption_type == "sse_s3" ? { create = true } : {}
 
           content {
           }
@@ -137,10 +137,10 @@ resource "aws_s3_bucket_inventory" "default" {
   }
 
   dynamic "filter" {
-    for_each = each.value.filter
+    for_each = each.value.filter_prefix != null ? { create = true } : {}
 
     content {
-      prefix = each.value.filter.prefix
+      prefix = each.value.filter_prefix
     }
   }
 }
