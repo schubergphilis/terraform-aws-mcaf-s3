@@ -149,15 +149,14 @@ variable "replication_configuration" {
   type = object({
     iam_role_arn = string
     rules = map(object({
-      id                 = string
-      dest_bucket        = string
-      dest_storage_class = optional(string, null)
+      id                  = string
+      dest_bucket         = string
+      dest_storage_class  = optional(string, null)
+      replica_kms_key_arn = optional(string, null)
+
       source_selection_criteria = optional(object({
-        replica_modifications     = optional(string, null)
-        sse_kms_encrypted_objects = optional(string, null)
-      }))
-      encryption_configuration = optional(object({
-        replica_kms_key_id = optional(string, null)
+        replica_modifications     = optional(bool, false)
+        sse_kms_encrypted_objects = optional(bool, false)
       }))
     }))
   })

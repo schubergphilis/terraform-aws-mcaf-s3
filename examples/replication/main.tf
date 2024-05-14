@@ -28,19 +28,20 @@ module "log_bucket" {
       }
     }
   ]
+
   replication_configuration = {
     iam_role_arn = "arn:aws:iam::111111111111:role/replication-role"
+
     rules = {
       "1" = {
-        id                 = "1"
-        dest_bucket        = "arn:aws:s3:::destination-bucket"
-        dest_storage_class = "STANDARD"
+        id                  = "1"
+        dest_bucket         = "arn:aws:s3:::destination-bucket"
+        dest_storage_class  = "STANDARD"
+        replica_kms_key_arn = "arn:aws:kms:eu-west-1:111111111111:key/cfabdf0b-eb46-4e29-a38d-57a00ddxc0cc"
+
         source_selection_criteria = {
-          replica_modifications     = "Enabled"
-          sse_kms_encrypted_objects = "Enabled"
-        }
-        encryption_configuration = {
-          replica_kms_key_id = "arn:aws:kms:eu-central-1:111111111111:key/cfabdf0b-eb46-4e29-a38d-57a00ddxc0cc"
+          replica_modifications     = true
+          sse_kms_encrypted_objects = true
         }
       }
     }
