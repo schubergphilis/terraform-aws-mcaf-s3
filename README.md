@@ -85,6 +85,7 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_arn"></a> [arn](#output\_arn) | ARN of the bucket |
+| <a name="output_id"></a> [id](#output\_id) | Name of the bucket |
 | <a name="output_name"></a> [name](#output\_name) | Name of the bucket |
 <!-- END_TF_DOCS -->
 
