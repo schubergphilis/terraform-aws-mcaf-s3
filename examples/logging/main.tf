@@ -16,7 +16,6 @@ module "bucket1" {
       partitioned_prefix = {
         partition_date_source = "DeliveryTime" # "EventTime"
       }
-      # simple_prefix = {}
     }
   }
 }
@@ -33,7 +32,7 @@ module "bucket2" {
     target_bucket = "mylogbucket"
     target_prefix = "log/"
     target_object_key_format = {
-      # simple_prefix = {}
+      simple_prefix = {}
     }
   }
 }
