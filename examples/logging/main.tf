@@ -2,30 +2,38 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-module "log_bucket" {
+module "bucket1" {
   #checkov:skip=CKV_AWS_300: false positive https://github.com/bridgecrewio/checkov/issues/5363
   source = "../.."
 
-  name_prefix = "logs"
+  name_prefix = "data1"
   versioning  = true
 
-  lifecycle_rule = [
-    {
-      id      = "retention"
-      enabled = true
-
-      abort_incomplete_multipart_upload = {
-        days_after_initiation = 7
+  logging = {
+    target_bucket = "mylogbucket"
+    target_prefix = "log/"
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime" # "EventTime"
       }
-
-      noncurrent_version_expiration = {
-        noncurrent_days = 90
-      }
-
-      noncurrent_version_transition = {
-        noncurrent_days = 30
-        storage_class   = "ONEZONE_IA"
-      }
+      # simple_prefix = {}
     }
-  ]
+  }
+}
+
+
+module "bucket2" {
+  #checkov:skip=CKV_AWS_300: false positive https://github.com/bridgecrewio/checkov/issues/5363
+  source = "../.."
+
+  name_prefix = "data2"
+  versioning  = true
+
+  logging = {
+    target_bucket = "mylogbucket"
+    target_prefix = "log/"
+    target_object_key_format = {
+      # simple_prefix = {}
+    }
+  }
 }
