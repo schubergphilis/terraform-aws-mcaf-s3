@@ -62,6 +62,7 @@ data "aws_iam_policy_document" "combined" {
 }
 
 resource "aws_s3_bucket" "default" {
+  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
   bucket              = var.name
   bucket_prefix       = var.name_prefix
   force_destroy       = var.force_destroy
@@ -146,6 +147,8 @@ resource "aws_s3_bucket_inventory" "default" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  #checkov:skip=CKV_AWS_300:Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer decides
+
   count = length(local.lifecycle_rules) > 0 ? 1 : 0
 
   bucket = aws_s3_bucket.default.bucket
@@ -164,7 +167,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           prefix = try(filter.value, null)
         }
       }
-
       dynamic "abort_incomplete_multipart_upload" {
         for_each = try(flatten([rule.value.abort_incomplete_multipart_upload]), [])
 
@@ -220,6 +222,27 @@ resource "aws_s3_bucket_logging" "default" {
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.logging.target_bucket
   target_prefix = var.logging.target_prefix
+
+  dynamic "target_object_key_format" {
+    for_each = var.logging.target_object_key_format
+
+    content {
+      dynamic "partitioned_prefix" {
+        for_each = try(target_object_key_format.value["partitioned_prefix"], [])
+
+        content {
+          partition_date_source = try(partitioned_prefix.value, null)
+        }
+      }
+
+      dynamic "simple_prefix" {
+        for_each = contains(keys(target_object_key_format.value), "simple_prefix") ? [1] : []
+
+        content {}
+      }
+    }
+  }
+
 
   lifecycle {
     precondition {
