@@ -110,6 +110,12 @@ variable "logging" {
   type = object({
     target_bucket = string
     target_prefix = string
+    target_object_key_format = optional(object({
+      partitioned_prefix = optional(object({
+        partition_date_source = string
+      }), null)
+      simple_prefix = optional(object({}), null)
+    }), {})
   })
   default     = null
   description = "Logging configuration, logging is disabled by default."
