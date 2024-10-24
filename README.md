@@ -12,6 +12,32 @@ Server access logging provides detailed records for the requests that are made t
 
 Source: <https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html>
 
+
+By default there is no naming schema, every bucket logs in the target_prefix with a unique name. The newly added option target_object_key_format has two options to manage the files.
+
+```hcl
+    target_prefix = "log/"
+    target_object_key_format = {
+      simple_prefix = {}
+    }
+```
+
+Uses the following format for the log file `[Desttarget_prefixinationPrefix][YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]`
+
+```hcl
+    target_prefix = "log/"
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime" # "EventTime"
+      }
+    }
+```
+
+Uses the following format for the log file with partitioned folders. `[target_prefix][SourceAccountId]/​[SourceRegion]/​[SourceBucket]/​[YYYY]/​[MM]/​[DD]/​[YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]`
+
+
+
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
