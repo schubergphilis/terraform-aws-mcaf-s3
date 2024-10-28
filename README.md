@@ -20,7 +20,7 @@ Simple prefix, which uses the following format for the log file `[Desttarget_pre
 ```hcl
     target_prefix = "log/"
     target_object_key_format = {
-      simple_prefix = {}
+      format_type = "simple"
     }
 ```
 
@@ -29,9 +29,8 @@ Or partitioned prefix, which uses the following format for the log file with par
 ```hcl
     target_prefix = "log/"
     target_object_key_format = {
-      partitioned_prefix = {
-        partition_date_source = "DeliveryTime" # "EventTime"
-      }
+      format_type           = "partitioned"
+      partition_date_source = "DeliveryTime" # EventTime is default
     }
 ```
 

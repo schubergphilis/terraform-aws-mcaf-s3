@@ -111,14 +111,29 @@ variable "logging" {
     target_bucket = string
     target_prefix = string
     target_object_key_format = optional(object({
-      partitioned_prefix = optional(object({
-        partition_date_source = string
-      }), null)
-      simple_prefix = optional(object({}), null)
-    }), {})
+      format_type           = string                        # "simple" or "partitioned"
+      partition_date_source = optional(string, "EventTime") # Required if format_type is "partitioned"
+    }))
   })
-  default     = null
-  description = "Logging configuration, logging is disabled by default."
+
+  default = null
+
+  validation {
+    condition = var.logging == null ? true : (
+      var.logging.target_object_key_format == null ? true : (
+        contains(["simple", "partitioned"], var.logging.target_object_key_format.format_type) &&
+        (
+          var.logging.target_object_key_format.format_type == "simple" ||
+          (
+            var.logging.target_object_key_format.format_type == "partitioned" &&
+            var.logging.target_object_key_format.partition_date_source != null &&
+            contains(["DeliveryTime", "EventTime"], var.logging.target_object_key_format.partition_date_source)
+          )
+        )
+      )
+    )
+    error_message = "When logging is enabled: target_object_key_format.format_type must be 'simple' or 'partitioned'. If partitioned, partition_date_source must be 'DeliveryTime' or 'EventTime'."
+  }
 }
 
 variable "logging_source_bucket_arns" {

@@ -223,21 +223,21 @@ resource "aws_s3_bucket_logging" "default" {
   target_bucket = var.logging.target_bucket
   target_prefix = var.logging.target_prefix
 
+
   dynamic "target_object_key_format" {
-    for_each = var.logging.target_object_key_format != null ? [var.logging.target_object_key_format] : []
+    for_each = var.logging[0].target_object_key_format != null ? [var.logging[0].target_object_key_format] : []
 
     content {
       dynamic "partitioned_prefix" {
-        for_each = try(target_object_key_format.value.partitioned_prefix != null ? [target_object_key_format.value.partitioned_prefix] : [], [])
+        for_each = target_object_key_format.value.format_type == "partitioned" ? [target_object_key_format.value.partition_date_source] : []
 
         content {
-          partition_date_source = partitioned_prefix.value.partition_date_source
+          partition_date_source = partitioned_prefix.value
         }
       }
 
       dynamic "simple_prefix" {
-        for_each = try(target_object_key_format.value.simple_prefix != null ? [target_object_key_format.value.simple_prefix] : [], [])
-
+        for_each = target_object_key_format.value.format_type == "simple" ? { create = true } : {}
         content {}
       }
     }

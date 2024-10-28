@@ -2,6 +2,18 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+
+module "logbucket" {
+  #checkov:skip=CKV_AWS_300: false positive https://github.com/bridgecrewio/checkov/issues/5363
+  source = "../.."
+
+  name_prefix = "log"
+  versioning  = false
+
+
+}
+
+
 module "bucket1" {
   #checkov:skip=CKV_AWS_300: false positive https://github.com/bridgecrewio/checkov/issues/5363
   source = "../.."
@@ -10,12 +22,11 @@ module "bucket1" {
   versioning  = true
 
   logging = {
-    target_bucket = "mylogbucket"
+    target_bucket = module.logbucket.name
     target_prefix = "log/"
     target_object_key_format = {
-      partitioned_prefix = {
-        partition_date_source = "DeliveryTime" # "EventTime"
-      }
+      format_type           = "partitioned"
+      partition_date_source = "DeliveryTime"
     }
   }
 }
@@ -29,10 +40,10 @@ module "bucket2" {
   versioning  = true
 
   logging = {
-    target_bucket = "mylogbucket"
+    target_bucket = module.logbucket.name
     target_prefix = "log/"
     target_object_key_format = {
-      simple_prefix = {}
+      format_type = "simple"
     }
   }
 }
