@@ -8,12 +8,14 @@ IMPORTANT: We do not pin modules to versions in our examples. We highly recommen
 
 Server access logging provides detailed records for the requests that are made to a bucket and can useful in security and access audits. However logging to the same bucket is not recommended and is disabled using this module. See AWS' explanation here:
 
+> [!IMPORTANT]
 > Your target bucket should not have server access logging enabled. You can have logs delivered to any bucket that you own that is in the same Region as the source bucket, including the source bucket itself. However, this would cause an infinite loop of logs and is not recommended. For simpler log management, we recommend that you save access logs in a different bucket.
+> Source: <https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html>
 
-Source: <https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html>
 
+By default, there is no naming schema. The bucket logs are stored in the `var.logging.target_bucket` using the `var.logging.target_prefix` as prefix only. If you want to further control the log format, `var.logging.target_object_key_format` can be used. You have two options to control the format:
 
-By default there is no naming schema, every bucket logs in the target_prefix with a unique name. The newly added option target_object_key_format has two options to manage the files.
+Simple prefix, which uses the following format for the log file `[Desttarget_prefixinationPrefix][YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]`:
 
 ```hcl
     target_prefix = "log/"
@@ -22,7 +24,7 @@ By default there is no naming schema, every bucket logs in the target_prefix wit
     }
 ```
 
-Uses the following format for the log file `[Desttarget_prefixinationPrefix][YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]`
+Or partitioned prefix, which uses the following format for the log file with partitioned folders. `[target_prefix][SourceAccountId]/​[SourceRegion]/​[SourceBucket]/​[YYYY]/​[MM]/​[DD]/​[YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]`
 
 ```hcl
     target_prefix = "log/"
@@ -32,11 +34,6 @@ Uses the following format for the log file `[Desttarget_prefixinationPrefix][YYY
       }
     }
 ```
-
-Uses the following format for the log file with partitioned folders. `[target_prefix][SourceAccountId]/​[SourceRegion]/​[SourceBucket]/​[YYYY]/​[MM]/​[DD]/​[YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]`
-
-
-
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
