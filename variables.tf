@@ -117,6 +117,7 @@ variable "logging" {
   })
 
   default = null
+  description = "Logging configuration, logging is disabled by default."
 
   validation {
     condition = var.logging == null ? true : (
