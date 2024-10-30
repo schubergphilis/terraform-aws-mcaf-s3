@@ -225,7 +225,7 @@ resource "aws_s3_bucket_logging" "default" {
 
 
   dynamic "target_object_key_format" {
-    for_each = var.logging[0].target_object_key_format != null ? [var.logging[0].target_object_key_format] : []
+    for_each = var.logging.target_object_key_format != null ? [var.logging.target_object_key_format] : []
 
     content {
       dynamic "partitioned_prefix" {

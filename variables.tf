@@ -111,8 +111,8 @@ variable "logging" {
     target_bucket = string
     target_prefix = string
     target_object_key_format = optional(object({
-      format_type           = string                        # "simple" or "partitioned"
-      partition_date_source = optional(string, "EventTime") # Required if format_type is "partitioned"
+      format_type           = string                           # "simple" or "partitioned"
+      partition_date_source = optional(string, "DeliveryTime") # Required if format_type is "partitioned", default is DeliveryTime
     }))
   })
 
@@ -121,13 +121,16 @@ variable "logging" {
 
   validation {
     condition = var.logging == null ? true : (
+      # target_object_key_format should be null or have a valid format_type
       var.logging.target_object_key_format == null ? true : (
+        # target_object_key_format.format_type must be "simple" or "partitioned"
         contains(["simple", "partitioned"], var.logging.target_object_key_format.format_type) &&
         (
+          # If simple, partition_date_source doesn't matter
           var.logging.target_object_key_format.format_type == "simple" ||
           (
+            # If partitioned, partition_date_source must be "DeliveryTime" or "EventTime"
             var.logging.target_object_key_format.format_type == "partitioned" &&
-            var.logging.target_object_key_format.partition_date_source != null &&
             contains(["DeliveryTime", "EventTime"], var.logging.target_object_key_format.partition_date_source)
           )
         )
