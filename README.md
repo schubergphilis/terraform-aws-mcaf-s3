@@ -30,7 +30,7 @@ Or partitioned prefix, which uses the following format for the log file with par
     target_prefix = "log/"
     target_object_key_format = {
       format_type           = "partitioned"
-      partition_date_source = "DeliveryTime" # EventTime is default
+      partition_date_source = "EventTime" # DeliveryTime is default
     }
 ```
 
