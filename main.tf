@@ -1,11 +1,16 @@
 locals {
-  bucket_key_enabled        = var.kms_key_arn != null ? true : false
-  cors_rule                 = var.cors_rule != null ? { create = true } : {}
-  lifecycle_rules           = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
-  logging_permissions       = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
-  object_lock_configuration = var.object_lock_mode != null ? { create : true } : {}
-  policy                    = var.policy != null ? var.policy : null
-  replication_configuration = var.replication_configuration != null ? { create = true } : {}
+  lifecycle_rules     = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
+  logging_permissions = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
+  policy              = var.policy != null ? var.policy : null
+
+  # On/Off switches for optional resources and configuration
+  bucket_key_enabled                       = var.kms_key_arn != null ? true : false
+  cors_rule_enabled                        = var.cors_rule != null ? { create = true } : {}
+  logging_partitioned_prefix_enabled       = try(var.logging.target_object_key_format.format_type, null) == "partitioned" ? { create = true } : {}
+  logging_simple_prefix_enabled            = try(var.logging.target_object_key_format.format_type, null) == "simple" ? { create = true } : {}
+  logging_target_object_key_format_enabled = try(var.logging.target_object_key_format, null) != null ? { create = true } : {}
+  object_lock_enabled                      = var.object_lock_mode != null ? { create : true } : {}
+  replication_configuration_enabled        = var.replication_configuration != null ? { create = true } : {}
 }
 
 data "aws_iam_policy_document" "ssl_policy" {
@@ -62,6 +67,7 @@ data "aws_iam_policy_document" "combined" {
 }
 
 resource "aws_s3_bucket" "default" {
+  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
   bucket              = var.name
   bucket_prefix       = var.name_prefix
   force_destroy       = var.force_destroy
@@ -70,7 +76,8 @@ resource "aws_s3_bucket" "default" {
 }
 
 resource "aws_s3_bucket_acl" "default" {
-  count  = var.object_ownership_type == "ObjectWriter" ? 1 : 0
+  count = var.object_ownership_type == "ObjectWriter" ? 1 : 0
+
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
 
@@ -79,14 +86,16 @@ resource "aws_s3_bucket_acl" "default" {
 
 resource "aws_s3_bucket_ownership_controls" "default" {
   bucket = aws_s3_bucket.default.id
+
   rule {
     object_ownership = var.object_ownership_type
   }
 }
 
 resource "aws_s3_bucket_cors_configuration" "default" {
-  for_each = local.cors_rule
-  bucket   = aws_s3_bucket.default.bucket
+  for_each = local.cors_rule_enabled
+
+  bucket = aws_s3_bucket.default.bucket
 
   cors_rule {
     allowed_headers = var.cors_rule.allowed_headers
@@ -146,6 +155,7 @@ resource "aws_s3_bucket_inventory" "default" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  #checkov:skip=CKV_AWS_300:Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer decides
   count = length(local.lifecycle_rules) > 0 ? 1 : 0
 
   bucket = aws_s3_bucket.default.bucket
@@ -164,7 +174,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           prefix = try(filter.value, null)
         }
       }
-
       dynamic "abort_incomplete_multipart_upload" {
         for_each = try(flatten([rule.value.abort_incomplete_multipart_upload]), [])
 
@@ -216,10 +225,32 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 }
 
 resource "aws_s3_bucket_logging" "default" {
-  count         = var.logging != null ? 1 : 0
+  count = var.logging != null ? 1 : 0
+
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.logging.target_bucket
   target_prefix = var.logging.target_prefix
+
+
+  dynamic "target_object_key_format" {
+    for_each = local.logging_target_object_key_format_enabled
+
+    content {
+      dynamic "partitioned_prefix" {
+        for_each = local.logging_partitioned_prefix_enabled
+
+        content {
+          partition_date_source = var.logging.target_object_key_format.partition_date_source
+        }
+      }
+
+      dynamic "simple_prefix" {
+        for_each = local.logging_simple_prefix_enabled
+
+        content {}
+      }
+    }
+  }
 
   lifecycle {
     precondition {
@@ -230,8 +261,9 @@ resource "aws_s3_bucket_logging" "default" {
 }
 
 resource "aws_s3_bucket_object_lock_configuration" "default" {
-  for_each = local.object_lock_configuration
-  bucket   = aws_s3_bucket.default.bucket
+  for_each = local.object_lock_enabled
+
+  bucket = aws_s3_bucket.default.bucket
 
   rule {
     default_retention {
@@ -257,7 +289,7 @@ resource "aws_s3_bucket_notification" "eventbridge" {
 }
 
 resource "aws_s3_bucket_replication_configuration" "default" {
-  for_each = local.replication_configuration
+  for_each = local.replication_configuration_enabled
 
   role   = var.replication_configuration.iam_role_arn
   bucket = aws_s3_bucket.default.id

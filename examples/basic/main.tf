@@ -2,11 +2,11 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-module "log_bucket" {
+module "basic" {
   #checkov:skip=CKV_AWS_300: false positive https://github.com/bridgecrewio/checkov/issues/5363
   source = "../.."
 
-  name_prefix = "logs"
+  name_prefix = "basic"
   versioning  = true
 
   lifecycle_rule = [
