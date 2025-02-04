@@ -168,10 +168,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       status = try(rule.value.status, "Enabled")
 
       dynamic "filter" {
-        for_each = try([rule.value.prefix], [])
+        for_each = try([rule.value.filter], [])
 
         content {
-          prefix = try(filter.value, null)
+          prefix = try(filter.value.prefix, null)
         }
       }
       dynamic "abort_incomplete_multipart_upload" {
