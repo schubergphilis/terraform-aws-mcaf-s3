@@ -182,6 +182,7 @@ resource "aws_s3_bucket_inventory" "default" {
 ###
 
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  #checkov:skip=CKV_AWS_300: Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer of the module should decide
   count = length(var.lifecycle_rule) > 0 ? 1 : 0
 
   bucket = aws_s3_bucket.default.bucket
