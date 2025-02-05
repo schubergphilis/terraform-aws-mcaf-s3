@@ -102,9 +102,8 @@ variable "kms_key_arn" {
 
 variable "lifecycle_rule" {
   type = list(object({
-    id                                     = string
-    enabled                                = optional(bool, true)
-    transition_default_minimum_object_size = optional(string)
+    id      = string
+    enabled = optional(bool, true)
 
     abort_incomplete_multipart_upload = optional(object({
       days_after_initiation = number

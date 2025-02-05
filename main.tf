@@ -184,8 +184,7 @@ resource "aws_s3_bucket_inventory" "default" {
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
   count = length(var.lifecycle_rule) > 0 ? 1 : 0
 
-  bucket                                 = aws_s3_bucket.default.bucket
-  transition_default_minimum_object_size = var.lifecycle_rule.transition_default_minimum_object_size
+  bucket = aws_s3_bucket.default.bucket
 
   dynamic "rule" {
     for_each = var.lifecycle_rule
