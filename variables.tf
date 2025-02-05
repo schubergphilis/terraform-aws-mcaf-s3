@@ -101,9 +101,61 @@ variable "kms_key_arn" {
 }
 
 variable "lifecycle_rule" {
-  type        = any
+  type = list(object({
+    id     = string
+    status = optional(string, "Enabled")
+
+    abort_incomplete_multipart_upload = optional(object({
+      days_after_initiation = number
+    }))
+
+    expiration = optional(object({
+      date                         = optional(string)
+      days                         = optional(number)
+      expired_object_delete_marker = optional(bool)
+    }))
+
+    filter = optional(object({
+      prefix                   = optional(string, "")
+      object_size_greater_than = optional(number)
+      object_size_less_than    = optional(number)
+
+      tag = optional(object({
+        key   = string
+        value = string
+      }))
+
+      # 'and' block for combining multiple predicates
+      and = optional(object({
+        prefix                   = optional(string, "")
+        object_size_greater_than = optional(number)
+        object_size_less_than    = optional(number)
+
+        # Key-value map of tags. All must match the object's tag set
+        tags = optional(map(string))
+      }))
+    }))
+
+    noncurrent_version_expiration = optional(object({
+      newer_noncurrent_versions = optional(number)
+      noncurrent_days           = optional(number)
+    }))
+
+    noncurrent_version_transition = optional(list(object({
+      newer_noncurrent_versions = optional(number)
+      noncurrent_days           = optional(number)
+      storage_class             = string
+    })))
+
+    transition = optional(list(object({
+      date          = optional(string)
+      days          = optional(number)
+      storage_class = string
+    })))
+  }))
+
   default     = []
-  description = "List of maps containing lifecycle management configuration settings."
+  description = "List of objects containing lifecycle management configuration settings."
 }
 
 variable "logging" {
