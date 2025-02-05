@@ -21,10 +21,12 @@ module "lifecycle" {
         noncurrent_days = 90
       }
 
-      noncurrent_version_transition = {
-        noncurrent_days = 30
-        storage_class   = "ONEZONE_IA"
-      }
+      noncurrent_version_transition = [
+        {
+          noncurrent_days = 30
+          storage_class   = "ONEZONE_IA"
+        }
+      ]
     }
   ]
 }
