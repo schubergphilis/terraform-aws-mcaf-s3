@@ -54,7 +54,7 @@ module "lifecycle_multiple" {
       ]
 
       expiration = {
-        days = 365
+        days = 3650
       }
     },
     {
