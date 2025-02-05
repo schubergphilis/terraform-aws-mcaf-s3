@@ -192,7 +192,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
     content {
       id     = rule.value.id
-      status = rule.value.status ? "Enabled" : "Disabled"
+      status = rule.value.enabled ? "Enabled" : "Disabled"
 
       # --------------------------------------------------------------
       # abort_incomplete_multipart_upload (max 1 block)
