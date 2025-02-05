@@ -102,8 +102,9 @@ variable "kms_key_arn" {
 
 variable "lifecycle_rule" {
   type = list(object({
-    id     = string
-    status = optional(string, "Enabled")
+    id                                     = string
+    enabled                                = optional(bool, true)
+    transition_default_minimum_object_size = optional(string)
 
     abort_incomplete_multipart_upload = optional(object({
       days_after_initiation = number
@@ -127,12 +128,10 @@ variable "lifecycle_rule" {
 
       # 'and' block for combining multiple predicates
       and = optional(object({
-        prefix                   = optional(string, "")
         object_size_greater_than = optional(number)
         object_size_less_than    = optional(number)
-
-        # Key-value map of tags. All must match the object's tag set
-        tags = optional(map(string))
+        prefix                   = optional(string, "")
+        tags                     = optional(map(string))
       }))
     }))
 
@@ -255,7 +254,7 @@ variable "policy" {
 
 variable "versioning" {
   type        = bool
-  default     = false
+  default     = true
   description = "Versioning is a means of keeping multiple variants of an object in the same bucket."
 }
 

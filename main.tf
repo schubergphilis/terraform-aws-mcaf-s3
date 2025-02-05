@@ -17,7 +17,6 @@ locals {
 ################################################################################
 
 resource "aws_s3_bucket" "default" {
-  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
   bucket              = var.name
   bucket_prefix       = var.name_prefix
   force_destroy       = var.force_destroy
@@ -185,14 +184,15 @@ resource "aws_s3_bucket_inventory" "default" {
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
   count = length(var.lifecycle_rule) > 0 ? 1 : 0
 
-  bucket = aws_s3_bucket.default.bucket
+  bucket                                 = aws_s3_bucket.default.bucket
+  transition_default_minimum_object_size = var.lifecycle_rule.transition_default_minimum_object_size
 
   dynamic "rule" {
     for_each = var.lifecycle_rule
 
     content {
       id     = rule.value.id
-      status = rule.value.status
+      status = rule.value.status ? "Enabled" : "Disabled"
 
       # --------------------------------------------------------------
       # abort_incomplete_multipart_upload (max 1 block)
@@ -457,7 +457,6 @@ resource "aws_s3_bucket_public_access_block" "default" {
 ###
 
 resource "aws_s3_bucket_versioning" "default" {
-  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
   bucket = aws_s3_bucket.default.id
 
   versioning_configuration {

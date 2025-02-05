@@ -7,25 +7,4 @@ module "basic" {
   source = "../.."
 
   name_prefix = "basic"
-  versioning  = true
-
-  lifecycle_rule = [
-    {
-      id      = "retention"
-      enabled = true
-
-      abort_incomplete_multipart_upload = {
-        days_after_initiation = 7
-      }
-
-      noncurrent_version_expiration = {
-        noncurrent_days = 90
-      }
-
-      noncurrent_version_transition = {
-        noncurrent_days = 30
-        storage_class   = "ONEZONE_IA"
-      }
-    }
-  ]
 }
