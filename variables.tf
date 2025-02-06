@@ -153,7 +153,7 @@ variable "lifecycle_rule" {
   }))
 
   default     = []
-  description = "List of lifecycle configuration settings"
+  description = "List of lifecycle configuration settings."
 }
 
 variable "logging" {
