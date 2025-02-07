@@ -16,7 +16,6 @@ module "bucket1" {
   source = "../.."
 
   name_prefix = "data1"
-  versioning  = true
 
   logging = {
     target_bucket = module.logbucket.name
@@ -34,7 +33,6 @@ module "bucket2" {
   source = "../.."
 
   name_prefix = "data2"
-  versioning  = true
 
   logging = {
     target_bucket = module.logbucket.name

@@ -7,7 +7,6 @@ module "log_bucket" {
   source = "../.."
 
   name_prefix = "logs"
-  versioning  = true
 
   lifecycle_rule = [
     {
@@ -22,10 +21,12 @@ module "log_bucket" {
         noncurrent_days = 90
       }
 
-      noncurrent_version_transition = {
-        noncurrent_days = 30
-        storage_class   = "ONEZONE_IA"
-      }
+      noncurrent_version_transition = [
+        {
+          noncurrent_days = 30
+          storage_class   = "ONEZONE_IA"
+        }
+      ]
     }
   ]
 

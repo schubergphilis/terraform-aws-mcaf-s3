@@ -1,5 +1,4 @@
 locals {
-  lifecycle_rules     = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
   logging_permissions = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
   policy              = var.policy != null ? var.policy : null
 
@@ -11,6 +10,18 @@ locals {
   logging_target_object_key_format_enabled = try(var.logging.target_object_key_format, null) != null ? { create = true } : {}
   object_lock_enabled                      = var.object_lock_mode != null ? { create : true } : {}
   replication_configuration_enabled        = var.replication_configuration != null ? { create = true } : {}
+}
+
+################################################################################
+# S3 Bucket & Bucket Policy
+################################################################################
+
+resource "aws_s3_bucket" "default" {
+  bucket              = var.name
+  bucket_prefix       = var.name_prefix
+  force_destroy       = var.force_destroy
+  object_lock_enabled = var.object_lock_mode != null ? true : false
+  tags                = var.tags
 }
 
 data "aws_iam_policy_document" "ssl_policy" {
@@ -66,13 +77,25 @@ data "aws_iam_policy_document" "combined" {
   ])
 }
 
-resource "aws_s3_bucket" "default" {
-  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
-  bucket              = var.name
-  bucket_prefix       = var.name_prefix
-  force_destroy       = var.force_destroy
-  object_lock_enabled = var.object_lock_mode != null ? true : false
-  tags                = var.tags
+resource "aws_s3_bucket_policy" "default" {
+  bucket = aws_s3_bucket.default.id
+  policy = data.aws_iam_policy_document.combined.json
+}
+
+################################################################################
+# S3 Bucket Configuration
+################################################################################
+
+###
+# Ownership & ACL
+###
+
+resource "aws_s3_bucket_ownership_controls" "default" {
+  bucket = aws_s3_bucket.default.id
+
+  rule {
+    object_ownership = var.object_ownership_type
+  }
 }
 
 resource "aws_s3_bucket_acl" "default" {
@@ -84,13 +107,9 @@ resource "aws_s3_bucket_acl" "default" {
   depends_on = [aws_s3_bucket_ownership_controls.default]
 }
 
-resource "aws_s3_bucket_ownership_controls" "default" {
-  bucket = aws_s3_bucket.default.id
-
-  rule {
-    object_ownership = var.object_ownership_type
-  }
-}
+###
+# CORS
+###
 
 resource "aws_s3_bucket_cors_configuration" "default" {
   for_each = local.cors_rule_enabled
@@ -105,6 +124,10 @@ resource "aws_s3_bucket_cors_configuration" "default" {
     max_age_seconds = var.cors_rule.max_age_seconds
   }
 }
+
+###
+# Inventory
+###
 
 resource "aws_s3_bucket_inventory" "default" {
   for_each = var.inventory_configuration
@@ -154,75 +177,124 @@ resource "aws_s3_bucket_inventory" "default" {
   }
 }
 
+###
+# Lifecycle
+###
+
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
-  #checkov:skip=CKV_AWS_300:Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer decides
-  count = length(local.lifecycle_rules) > 0 ? 1 : 0
+  #checkov:skip=CKV_AWS_300: Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer of the module should decide
+  count = length(var.lifecycle_rule) > 0 ? 1 : 0
 
   bucket = aws_s3_bucket.default.bucket
 
   dynamic "rule" {
-    for_each = local.lifecycle_rules
+    for_each = var.lifecycle_rule
 
     content {
-      id     = try(rule.value.id, null)
-      status = try(rule.value.status, "Enabled")
+      id     = rule.value.id
+      status = rule.value.enabled ? "Enabled" : "Disabled"
 
-      dynamic "filter" {
-        for_each = try([rule.value.prefix], [])
-
-        content {
-          prefix = try(filter.value, null)
-        }
-      }
+      # --------------------------------------------------------------
+      # abort_incomplete_multipart_upload (max 1 block)
+      # --------------------------------------------------------------
       dynamic "abort_incomplete_multipart_upload" {
-        for_each = try(flatten([rule.value.abort_incomplete_multipart_upload]), [])
+        for_each = rule.value.abort_incomplete_multipart_upload != null ? [rule.value.abort_incomplete_multipart_upload] : []
 
         content {
-          days_after_initiation = try(abort_incomplete_multipart_upload.value.days_after_initiation, null)
+          days_after_initiation = abort_incomplete_multipart_upload.value.days_after_initiation
         }
       }
 
+      # ------------
+      # expiration (max 1 block)
+      # ------------
       dynamic "expiration" {
-        for_each = try(flatten([rule.value.expiration]), [])
+        for_each = rule.value.expiration != null ? [rule.value.expiration] : []
 
         content {
-          date                         = try(expiration.value.date, null)
-          days                         = try(expiration.value.days, null)
-          expired_object_delete_marker = try(expiration.value.expired_object_delete_marker, null)
+          date                         = expiration.value.date
+          days                         = expiration.value.days
+          expired_object_delete_marker = expiration.value.expired_object_delete_marker
         }
       }
 
+      # --------------------------------------------------
+      # filter (max 1 block)
+      # --------------------------------------------------
+      dynamic "filter" {
+        for_each = rule.value.filter != null ? [rule.value.filter] : []
+
+        content {
+          prefix                   = filter.value.prefix
+          object_size_greater_than = filter.value.object_size_greater_than
+          object_size_less_than    = filter.value.object_size_less_than
+
+          dynamic "tag" {
+            for_each = filter.value.tag != null ? [filter.value.tag] : []
+
+            content {
+              key   = tag.value.key
+              value = tag.value.value
+            }
+          }
+
+          dynamic "and" {
+            for_each = filter.value.and != null ? [filter.value.and] : []
+
+            content {
+              prefix                   = and.value.prefix
+              object_size_greater_than = and.value.object_size_greater_than
+              object_size_less_than    = and.value.object_size_less_than
+              tags                     = and.value.tags
+            }
+          }
+        }
+      }
+
+      # -------------------------------
+      # noncurrent_version_expiration (max 1 block)
+      # -------------------------------
       dynamic "noncurrent_version_expiration" {
-        for_each = try(flatten([rule.value.noncurrent_version_expiration]), [])
+        for_each = rule.value.noncurrent_version_expiration != null ? [rule.value.noncurrent_version_expiration] : []
 
         content {
-          newer_noncurrent_versions = try(noncurrent_version_expiration.value.newer_noncurrent_versions, null)
-          noncurrent_days           = try(noncurrent_version_expiration.value.noncurrent_days, null)
+          newer_noncurrent_versions = noncurrent_version_expiration.value.newer_noncurrent_versions
+          noncurrent_days           = noncurrent_version_expiration.value.noncurrent_days
         }
       }
 
+      # -------------------------------
+      # noncurrent_version_transition (1..n blocks)
+      # -------------------------------
       dynamic "noncurrent_version_transition" {
-        for_each = try(flatten([rule.value.noncurrent_version_transition]), [])
+        for_each = rule.value.noncurrent_version_transition != null ? rule.value.noncurrent_version_transition : []
 
         content {
-          newer_noncurrent_versions = try(noncurrent_version_transition.value.newer_noncurrent_versions, null)
-          noncurrent_days           = try(noncurrent_version_transition.value.noncurrent_days, null)
+          newer_noncurrent_versions = noncurrent_version_transition.value.newer_noncurrent_versions
+          noncurrent_days           = noncurrent_version_transition.value.noncurrent_days
           storage_class             = noncurrent_version_transition.value.storage_class
         }
       }
 
+      # -----------
+      # transition (1..n blocks)
+      # -----------
       dynamic "transition" {
-        for_each = try(flatten([rule.value.transition]), [])
+        for_each = rule.value.transition != null ? rule.value.transition : []
 
         content {
-          date          = try(transition.value.date, null)
-          days          = try(transition.value.days, null)
+          date          = transition.value.date
+          days          = transition.value.days
           storage_class = transition.value.storage_class
         }
       }
     }
   }
 }
+
+###
+# Logging
+###
 
 resource "aws_s3_bucket_logging" "default" {
   count = var.logging != null ? 1 : 0
@@ -260,6 +332,10 @@ resource "aws_s3_bucket_logging" "default" {
   }
 }
 
+###
+# Object Lock
+###
+
 resource "aws_s3_bucket_object_lock_configuration" "default" {
   for_each = local.object_lock_enabled
 
@@ -281,12 +357,20 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
   }
 }
 
+###
+# Notification / EventBridge
+###
+
 resource "aws_s3_bucket_notification" "eventbridge" {
   count = var.eventbridge_enabled ? 1 : 0
 
   bucket      = aws_s3_bucket.default.id
   eventbridge = var.eventbridge_enabled
 }
+
+###
+# Replication
+###
 
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = local.replication_configuration_enabled
@@ -339,6 +423,10 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   depends_on = [aws_s3_bucket_versioning.default]
 }
 
+###
+# Server-Side Encryption
+###
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   bucket = aws_s3_bucket.default.bucket
 
@@ -352,10 +440,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   }
 }
 
-resource "aws_s3_bucket_policy" "default" {
-  bucket = aws_s3_bucket.default.id
-  policy = data.aws_iam_policy_document.combined.json
-}
+###
+# Public Access Block
+###
 
 resource "aws_s3_bucket_public_access_block" "default" {
   bucket                  = aws_s3_bucket.default.id
@@ -365,9 +452,11 @@ resource "aws_s3_bucket_public_access_block" "default" {
   restrict_public_buckets = var.restrict_public_buckets
 }
 
-// tfsec:ignore:aws-s3-enable-versioning
+###
+# Versioning
+###
+
 resource "aws_s3_bucket_versioning" "default" {
-  #checkov:skip=CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled - consumer of the module should decide
   bucket = aws_s3_bucket.default.id
 
   versioning_configuration {

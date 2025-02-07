@@ -101,9 +101,59 @@ variable "kms_key_arn" {
 }
 
 variable "lifecycle_rule" {
-  type        = any
+  type = list(object({
+    id      = string
+    enabled = optional(bool, true)
+
+    abort_incomplete_multipart_upload = optional(object({
+      days_after_initiation = number
+    }))
+
+    expiration = optional(object({
+      date                         = optional(string)
+      days                         = optional(number)
+      expired_object_delete_marker = optional(bool)
+    }))
+
+    filter = optional(object({
+      prefix                   = optional(string, "")
+      object_size_greater_than = optional(number)
+      object_size_less_than    = optional(number)
+
+      tag = optional(object({
+        key   = string
+        value = string
+      }))
+
+      # 'and' block for combining multiple predicates
+      and = optional(object({
+        object_size_greater_than = optional(number)
+        object_size_less_than    = optional(number)
+        prefix                   = optional(string, "")
+        tags                     = optional(map(string))
+      }))
+    }))
+
+    noncurrent_version_expiration = optional(object({
+      newer_noncurrent_versions = optional(number)
+      noncurrent_days           = optional(number)
+    }))
+
+    noncurrent_version_transition = optional(list(object({
+      newer_noncurrent_versions = optional(number)
+      noncurrent_days           = optional(number)
+      storage_class             = string
+    })))
+
+    transition = optional(list(object({
+      date          = optional(string)
+      days          = optional(number)
+      storage_class = string
+    })))
+  }))
+
   default     = []
-  description = "List of maps containing lifecycle management configuration settings."
+  description = "List of lifecycle configuration settings."
 }
 
 variable "logging" {
@@ -203,7 +253,7 @@ variable "policy" {
 
 variable "versioning" {
   type        = bool
-  default     = false
+  default     = true
   description = "Versioning is a means of keeping multiple variants of an object in the same bucket."
 }
 
