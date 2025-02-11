@@ -73,7 +73,8 @@ data "aws_iam_policy_document" "combined" {
   source_policy_documents = compact([
     local.policy,
     data.aws_iam_policy_document.ssl_policy.json,
-    data.aws_iam_policy_document.logging_policy.json
+    data.aws_iam_policy_document.logging_policy.json,
+    try(data.aws_iam_policy_document.s3_bucket_policy[0].json, "")
   ])
 }
 
@@ -356,6 +357,277 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
     }
   }
 }
+
+###
+# Malware protection
+###
+
+data "aws_caller_identity" "this" {}
+
+locals {
+  malware_protection    = var.malware_protection.enabled ? 1 : 0
+  account_id            = data.aws_caller_identity.this.account_id
+  malware_iam_role_name = replace(title(join("", compact([var.name_prefix, var.name]))), "/[-_]/", "")
+}
+
+resource "aws_guardduty_malware_protection_plan" "default" {
+  count = local.malware_protection
+  role  = module.s3_malware_protection_role[0].arn
+
+  protected_resource {
+    s3_bucket {
+      bucket_name     = aws_s3_bucket.default.id
+      object_prefixes = try(var.malware_protection.object_prefixes, null)
+    }
+  }
+
+  actions {
+    tagging {
+      status = "ENABLED"
+    }
+  }
+
+}
+
+data "aws_iam_policy_document" "s3_bucket_policy" {
+  count = local.malware_protection
+  statement {
+    sid    = "NoReadExceptForClean"
+    effect = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}",
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:ExistingObjectTag/GuardDutyMalwareScanStatus"
+      values   = ["NO_THREATS_FOUND"]
+    }
+    condition {
+      test     = "ForAnyValue:ArnNotEquals"
+      variable = "aws:PrincipalArn"
+      values = [
+        "arn:aws:iam::${local.account_id}:root",
+        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
+        module.s3_malware_protection_role[0].arn
+      ]
+    }
+  }
+
+  statement {
+    sid    = "OnlyGuardDutyCanTag"
+    effect = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = ["s3:PutObjectTagging"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}",
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+    ]
+    condition {
+      test     = "ForAnyValue:ArnNotEquals"
+      variable = "aws:PrincipalArn"
+      values = [
+        "arn:aws:iam::${local.account_id}:root",
+        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
+        module.s3_malware_protection_role[0].arn
+      ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "s3_malware_protection_assume_role" {
+  count = local.malware_protection
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["malware-protection-plan.guardduty.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [local.account_id]
+    }
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = ["arn:aws:guardduty:eu-west-1:${local.account_id}:malware-protection-plan/*"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "s3_malware_protection_policy" {
+  count = local.malware_protection
+  statement {
+    sid     = "AllowManagedRuleToSendS3EventsToGuardDuty"
+    effect  = "Allow"
+    actions = ["events:PutRule"]
+    resources = [
+      "arn:aws:events:eu-west-1:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "events:ManagedBy"
+      values   = ["malware-protection-plan.guardduty.amazonaws.com"]
+    }
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "events:source"
+      values   = ["aws.s3"]
+    }
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "events:detail-type"
+      values   = ["Object Created", "AWS API Call via CloudTrail"]
+    }
+    condition {
+      test     = "Null"
+      variable = "events:source"
+      values   = ["false"]
+    }
+    condition {
+      test     = "Null"
+      variable = "events:detail-type"
+      values   = ["false"]
+    }
+  }
+
+  statement {
+    sid    = "AllowUpdateTargetAndDeleteManagedRule"
+    effect = "Allow"
+    actions = [
+      "events:DeleteRule",
+      "events:PutTargets",
+      "events:RemoveTargets"
+    ]
+    resources = [
+      "arn:aws:events:eu-west-1:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "events:ManagedBy"
+      values   = ["malware-protection-plan.guardduty.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid    = "AllowGuardDutyToMonitorEventBridgeManagedRule"
+    effect = "Allow"
+    actions = [
+      "events:DescribeRule",
+      "events:ListTargetsByRule"
+    ]
+    resources = [
+      "arn:aws:events:eu-west-1:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+    ]
+  }
+
+  statement {
+    sid    = "AllowEnableS3EventBridgeEvents"
+    effect = "Allow"
+    actions = [
+      "s3:PutBucketNotification",
+      "s3:GetBucketNotification"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceAccount"
+      values   = [local.account_id]
+    }
+  }
+
+  statement {
+    sid    = "AllowPostScanTag"
+    effect = "Allow"
+    actions = [
+      "s3:GetObjectTagging",
+      "s3:GetObjectVersionTagging",
+      "s3:PutObjectTagging",
+      "s3:PutObjectVersionTagging"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceAccount"
+      values   = [local.account_id]
+    }
+  }
+
+  statement {
+    sid     = "AllowPutValidationObject"
+    effect  = "Allow"
+    actions = ["s3:PutObject"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/malware-protection-resource-validation-object"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceAccount"
+      values   = [local.account_id]
+    }
+  }
+
+  statement {
+    sid     = "AllowCheckBucketOwnership"
+    effect  = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceAccount"
+      values   = [local.account_id]
+    }
+  }
+
+  statement {
+    sid    = "AllowMalwareScan"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceAccount"
+      values   = [local.account_id]
+    }
+  }
+}
+
+module "s3_malware_protection_role" {
+  count   = var.malware_protection.enabled ? 1 : 0
+  source  = "schubergphilis/mcaf-role/aws"
+  version = "0.4.0"
+
+  name                 = local.malware_iam_role_name
+  create_policy        = true
+  role_policy          = data.aws_iam_policy_document.s3_malware_protection_policy[0].json
+  assume_policy        = data.aws_iam_policy_document.s3_malware_protection_assume_role[0].json
+  permissions_boundary = var.permissions_boundary
+}
+
 
 ###
 # Notification / EventBridge
