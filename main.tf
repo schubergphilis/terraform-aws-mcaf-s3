@@ -367,7 +367,7 @@ data "aws_caller_identity" "this" {}
 locals {
   malware_protection    = var.malware_protection.enabled ? 1 : 0
   account_id            = data.aws_caller_identity.this.account_id
-  malware_iam_role_name = replace(title(join("", compact([var.name_prefix, var.name]))), "/[-_]/", "")
+  malware_iam_role_name = aws_s3_bucket.default.id
 }
 
 resource "aws_guardduty_malware_protection_plan" "default" {
