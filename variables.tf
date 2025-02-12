@@ -196,6 +196,16 @@ variable "logging_source_bucket_arns" {
   description = "Configures which source buckets are allowed to log to this bucket."
 }
 
+variable "malware_protection" {
+  type = object({
+    enabled              = optional(bool, false)
+    object_prefixes      = optional(list(string), [])
+    permissions_boundary = optional(string, null)
+  })
+  default     = {}
+  description = "AWS GuardDuty malware protection bucket protection settings."
+}
+
 variable "object_lock_mode" {
   type        = string
   default     = null

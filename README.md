@@ -50,12 +50,15 @@ Or partitioned prefix, which uses the following format for the log file with par
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_s3_malware_protection_role"></a> [s3\_malware\_protection\_role](#module\_s3\_malware\_protection\_role) | schubergphilis/mcaf-role/aws | ~> 0.4.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_guardduty_malware_protection_plan.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/guardduty_malware_protection_plan) | resource |
 | [aws_s3_bucket.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_acl.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_cors_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_cors_configuration) | resource |
@@ -70,9 +73,14 @@ No modules.
 | [aws_s3_bucket_replication_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_replication_configuration) | resource |
 | [aws_s3_bucket_server_side_encryption_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_s3_bucket_versioning.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_caller_identity.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.logging_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.malware_protection_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.s3_malware_protection_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.s3_malware_protection_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.ssl_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
@@ -90,6 +98,7 @@ No modules.
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of lifecycle configuration settings. | <pre>list(object({<br/>    id      = string<br/>    enabled = optional(bool, true)<br/><br/>    abort_incomplete_multipart_upload = optional(object({<br/>      days_after_initiation = number<br/>    }))<br/><br/>    expiration = optional(object({<br/>      date                         = optional(string)<br/>      days                         = optional(number)<br/>      expired_object_delete_marker = optional(bool)<br/>    }))<br/><br/>    filter = optional(object({<br/>      prefix                   = optional(string, "")<br/>      object_size_greater_than = optional(number)<br/>      object_size_less_than    = optional(number)<br/><br/>      tag = optional(object({<br/>        key   = string<br/>        value = string<br/>      }))<br/><br/>      # 'and' block for combining multiple predicates<br/>      and = optional(object({<br/>        object_size_greater_than = optional(number)<br/>        object_size_less_than    = optional(number)<br/>        prefix                   = optional(string, "")<br/>        tags                     = optional(map(string))<br/>      }))<br/>    }))<br/><br/>    noncurrent_version_expiration = optional(object({<br/>      newer_noncurrent_versions = optional(number)<br/>      noncurrent_days           = optional(number)<br/>    }))<br/><br/>    noncurrent_version_transition = optional(list(object({<br/>      newer_noncurrent_versions = optional(number)<br/>      noncurrent_days           = optional(number)<br/>      storage_class             = string<br/>    })))<br/><br/>    transition = optional(list(object({<br/>      date          = optional(string)<br/>      days          = optional(number)<br/>      storage_class = string<br/>    })))<br/>  }))</pre> | `[]` | no |
 | <a name="input_logging"></a> [logging](#input\_logging) | Logging configuration, logging is disabled by default. | <pre>object({<br/>    target_bucket = string<br/>    target_prefix = string<br/>    target_object_key_format = optional(object({<br/>      format_type           = optional(string)                 # "simple" or "partitioned"<br/>      partition_date_source = optional(string, "DeliveryTime") # Required if format_type is "partitioned", default is DeliveryTime<br/>    }))<br/>  })</pre> | `null` | no |
 | <a name="input_logging_source_bucket_arns"></a> [logging\_source\_bucket\_arns](#input\_logging\_source\_bucket\_arns) | Configures which source buckets are allowed to log to this bucket. | `list(string)` | `[]` | no |
+| <a name="input_malware_protection"></a> [malware\_protection](#input\_malware\_protection) | AWS GuardDuty malware protection bucket protection settings. | <pre>object({<br/>    enabled              = optional(bool, false)<br/>    object_prefixes      = optional(list(string), [])<br/>    permissions_boundary = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | The Name of the bucket. If omitted, Terraform will assign a random, unique name. Conflicts with `name_prefix`. | `string` | `null` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Creates a unique bucket name beginning with the specified prefix. Conflicts with `name`. | `string` | `null` | no |
 | <a name="input_object_lock_days"></a> [object\_lock\_days](#input\_object\_lock\_days) | The number of days that you want to specify for the default retention period. | `number` | `null` | no |
