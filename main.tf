@@ -121,8 +121,7 @@ data "aws_iam_policy_document" "malware_protection_policy" {
       test     = "ForAnyValue:ArnNotEquals"
       variable = "aws:PrincipalArn"
       values = [
-        "arn:aws:iam::${local.account_id}:root",
-        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
+        "arn:aws:iam::${local.account_id}:assumed-role/${module.s3_malware_protection_role["create"].name}/GuardDutyMalwareProtection",
         module.s3_malware_protection_role["create"].arn
       ]
     }
