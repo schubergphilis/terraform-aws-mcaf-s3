@@ -73,12 +73,68 @@ data "aws_iam_policy_document" "logging_policy" {
   }
 }
 
+data "aws_iam_policy_document" "malware_protection_policy" {
+  for_each = local.malware_protection_enabled
+  statement {
+    sid    = "NoReadExceptForClean"
+    effect = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}",
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:ExistingObjectTag/GuardDutyMalwareScanStatus"
+      values   = ["NO_THREATS_FOUND"]
+    }
+    condition {
+      test     = "ForAnyValue:ArnNotEquals"
+      variable = "aws:PrincipalArn"
+      values = [
+        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
+        module.s3_malware_protection_role["create"].arn
+      ]
+    }
+  }
+
+  statement {
+    sid    = "OnlyGuardDutyCanTag"
+    effect = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = ["s3:PutObjectTagging"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.default.id}",
+      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+    ]
+    condition {
+      test     = "ForAnyValue:ArnNotEquals"
+      variable = "aws:PrincipalArn"
+      values = [
+        "arn:aws:iam::${local.account_id}:root",
+        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
+        module.s3_malware_protection_role["create"].arn
+      ]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "combined" {
   source_policy_documents = compact([
     local.policy,
     data.aws_iam_policy_document.ssl_policy.json,
     data.aws_iam_policy_document.logging_policy.json,
-    try(data.aws_iam_policy_document.s3_bucket_policy["create"].json, "")
+    try(data.aws_iam_policy_document.malware_protection_policy["create"].json, "")
   ])
 }
 
@@ -374,71 +430,13 @@ resource "aws_guardduty_malware_protection_plan" "default" {
   protected_resource {
     s3_bucket {
       bucket_name     = aws_s3_bucket.default.id
-      object_prefixes = try(var.malware_protection.object_prefixes, null)
+      object_prefixes = var.malware_protection.object_prefixes
     }
   }
 
   actions {
     tagging {
       status = "ENABLED"
-    }
-  }
-
-}
-
-data "aws_iam_policy_document" "s3_bucket_policy" {
-  for_each = local.malware_protection_enabled
-  statement {
-    sid    = "NoReadExceptForClean"
-    effect = "Deny"
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-    actions = [
-      "s3:GetObject",
-      "s3:GetObjectVersion"
-    ]
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}",
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
-    ]
-    condition {
-      test     = "StringNotEquals"
-      variable = "s3:ExistingObjectTag/GuardDutyMalwareScanStatus"
-      values   = ["NO_THREATS_FOUND"]
-    }
-    condition {
-      test     = "ForAnyValue:ArnNotEquals"
-      variable = "aws:PrincipalArn"
-      values = [
-        "arn:aws:iam::${local.account_id}:root",
-        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
-        module.s3_malware_protection_role["create"].arn
-      ]
-    }
-  }
-
-  statement {
-    sid    = "OnlyGuardDutyCanTag"
-    effect = "Deny"
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-    actions = ["s3:PutObjectTagging"]
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}",
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
-    ]
-    condition {
-      test     = "ForAnyValue:ArnNotEquals"
-      variable = "aws:PrincipalArn"
-      values = [
-        "arn:aws:iam::${local.account_id}:root",
-        "arn:aws:iam::${local.account_id}:assumed-role/${local.malware_iam_role_name}Role/GuardDutyMalwareProtection",
-        module.s3_malware_protection_role["create"].arn
-      ]
     }
   }
 }
