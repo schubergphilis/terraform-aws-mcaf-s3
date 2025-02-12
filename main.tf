@@ -88,8 +88,8 @@ data "aws_iam_policy_document" "malware_protection_policy" {
       "s3:GetObjectVersion"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}",
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+      aws_s3_bucket.default.arn,
+      "${aws_s3_bucket.default.arn}/*"
     ]
     condition {
       test     = "StringNotEquals"
@@ -115,8 +115,8 @@ data "aws_iam_policy_document" "malware_protection_policy" {
     }
     actions = ["s3:PutObjectTagging"]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}",
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+      aws_s3_bucket.default.arn,
+      "${aws_s3_bucket.default.arn}/*"
     ]
     condition {
       test     = "ForAnyValue:ArnNotEquals"
@@ -506,7 +506,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
       "s3:GetBucketNotification"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}"
+      aws_s3_bucket.default.arn
     ]
     condition {
       test     = "StringEquals"
@@ -525,7 +525,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
       "s3:PutObjectVersionTagging"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+      "${aws_s3_bucket.default.arn}/*"
     ]
     condition {
       test     = "StringEquals"
@@ -553,7 +553,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
     effect  = "Allow"
     actions = ["s3:ListBucket"]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}"
+      aws_s3_bucket.default.arn
     ]
     condition {
       test     = "StringEquals"
@@ -570,7 +570,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
       "s3:GetObjectVersion"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/*"
+      "${aws_s3_bucket.default.arn}/*"
     ]
     condition {
       test     = "StringEquals"
