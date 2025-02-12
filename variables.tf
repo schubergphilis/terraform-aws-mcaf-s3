@@ -198,8 +198,9 @@ variable "logging_source_bucket_arns" {
 
 variable "malware_protection" {
   type = object({
-    enabled         = optional(bool, false)
-    object_prefixes = optional(list(string), null)
+    enabled              = optional(bool, false)
+    object_prefixes      = optional(list(string), [])
+    permissions_boundary = optional(string, null)
   })
   default     = {}
   description = "Bucket malware protection settings"
@@ -227,12 +228,6 @@ variable "object_ownership_type" {
   type        = string
   default     = "BucketOwnerEnforced"
   description = "The object ownership type for the objects in S3 Bucket, defaults to BucketOwnerEnforced."
-}
-
-variable "permissions_boundary" {
-  type        = string
-  default     = null
-  description = "The ARN of the policy that is used to set the permissions boundary for the bucket."
 }
 
 variable "replication_configuration" {
