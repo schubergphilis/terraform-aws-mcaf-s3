@@ -203,7 +203,7 @@ variable "malware_protection" {
     permissions_boundary = optional(string, null)
   })
   default     = {}
-  description = "Bucket malware protection settings"
+  description = "AWS GuardDuty malware protection bucket protection settings."
 }
 
 variable "object_lock_mode" {
