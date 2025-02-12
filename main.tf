@@ -539,7 +539,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
     effect  = "Allow"
     actions = ["s3:PutObject"]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.default.id}/malware-protection-resource-validation-object"
+      "${aws_s3_bucket.default.arn}/malware-protection-resource-validation-object"
     ]
     condition {
       test     = "StringEquals"
