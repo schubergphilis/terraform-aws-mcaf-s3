@@ -248,6 +248,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
   bucket = aws_s3_bucket.default.bucket
 
+  transition_default_minimum_object_size = var.transition_default_minimum_object_size
+
   dynamic "rule" {
     for_each = var.lifecycle_rule
 

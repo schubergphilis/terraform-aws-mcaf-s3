@@ -272,3 +272,9 @@ variable "tags" {
   default     = {}
   description = "A mapping of tags to assign to the bucket."
 }
+
+variable "transition_default_minimum_object_size" {
+  type        = string
+  default     = null
+  description = "The default minimum object size behavior applied to the lifecycle configuration. Valid values: all_storage_classes_128K (default), varies_by_storage_class"
+}
