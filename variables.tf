@@ -277,4 +277,9 @@ variable "transition_default_minimum_object_size" {
   type        = string
   default     = null
   description = "The default minimum object size behavior applied to the lifecycle configuration. Valid values: all_storage_classes_128K (default), varies_by_storage_class"
+
+  validation {
+    condition     = var.transition_default_minimum_object_size != null ? contains(["all_storage_classes_128K", "varies_by_storage_class"], var.transition_default_minimum_object_size) : true
+    error_message = "Allowed values for transition_default_minimum_object_size are \"all_storage_classes_128K\", \"varies_by_storage_class\"."
+  }
 }
