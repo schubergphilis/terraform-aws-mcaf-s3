@@ -699,9 +699,9 @@ resource "aws_s3_bucket_replication_configuration" "default" {
         }
       }
 
-        filter {}
-      }
+      filter {}
     }
+  }
 
   depends_on = [aws_s3_bucket_versioning.default]
 }
