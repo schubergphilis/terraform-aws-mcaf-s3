@@ -668,7 +668,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
             status = rule.value.metrics.status ? "Enabled" : "Disabled"
 
             event_threshold {
-              mintutes = rule.value.metrics.event_threshold_minutes
+              minutes = rule.value.metrics.event_threshold_minutes
             }
           }
         }
