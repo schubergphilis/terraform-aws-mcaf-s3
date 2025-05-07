@@ -244,12 +244,12 @@ variable "replication_configuration" {
         sse_kms_encrypted_objects = optional(bool, false)
       }))
       metrics = optional(object({
-        status = optional(bool, false)
+        status                  = optional(bool, false)
         event_threshold_minutes = optional(bool, false)
       }))
 
       replication_time = optional(object({
-        status = optional(bool, false)
+        status       = optional(bool, false)
         time_minutes = optional(bool, false)
       }))
     }))
