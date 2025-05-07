@@ -661,19 +661,6 @@ resource "aws_s3_bucket_replication_configuration" "default" {
           }
         }
 
-        dynamic "source_selection_criteria" {
-          for_each = rule.value.source_selection_criteria != null ? { create = true } : {}
-
-          content {
-            replica_modifications {
-              status = rule.value.source_selection_criteria.replica_modifications ? "Enabled" : "Disabled"
-            }
-            sse_kms_encrypted_objects {
-              status = rule.value.source_selection_criteria.sse_kms_encrypted_objects ? "Enabled" : "Disabled"
-            }
-          }
-        }
-
         dynamic "metrics" {
           for_each = rule.value.metrics != null ? [rule.value.metrics] : []
 
@@ -697,6 +684,20 @@ resource "aws_s3_bucket_replication_configuration" "default" {
             }
           }
         }
+      }
+
+      dynamic "source_selection_criteria" {
+        for_each = rule.value.source_selection_criteria != null ? { create = true } : {}
+
+        content {
+          replica_modifications {
+            status = rule.value.source_selection_criteria.replica_modifications ? "Enabled" : "Disabled"
+          }
+          sse_kms_encrypted_objects {
+            status = rule.value.source_selection_criteria.sse_kms_encrypted_objects ? "Enabled" : "Disabled"
+          }
+        }
+      }
 
         filter {}
       }
