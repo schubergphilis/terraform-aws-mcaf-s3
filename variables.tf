@@ -245,12 +245,12 @@ variable "replication_configuration" {
       }))
       metrics = optional(object({
         status                  = optional(bool, false)
-        event_threshold_minutes = optional(bool, false)
+        event_threshold_minutes = optional(number, 15)
       }))
 
       replication_time = optional(object({
         status       = optional(bool, false)
-        time_minutes = optional(bool, false)
+        time_minutes = optional(number, 15)
       }))
     }))
   })
