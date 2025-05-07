@@ -662,7 +662,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
         }
 
         dynamic "metrics" {
-          for_each = rule.value.metrics != null ? [rule.value.metrics] : []
+          for_each = rule.value.metrics != null ? { create = true } : {}
 
           content {
             status = rule.value.metrics.status ? "Enabled" : "Disabled"
@@ -674,7 +674,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
         }
 
         dynamic "replication_time" {
-          for_each = rule.value.replication_time != null ? [rule.value.replication_time] : []
+          for_each = rule.value.replication_time != null ? { create = true } : {}
 
           content {
             status = rule.value.replication_time.status ? "Enabled" : "Disabled"
