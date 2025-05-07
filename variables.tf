@@ -237,20 +237,20 @@ variable "replication_configuration" {
       id                  = string
       dest_bucket         = string
       dest_storage_class  = optional(string, null)
-      replica_kms_key_arn = optional(string, null)
-
-      source_selection_criteria = optional(object({
-        replica_modifications     = optional(bool, false)
-        sse_kms_encrypted_objects = optional(bool, false)
-      }))
       metrics = optional(object({
         status                  = optional(bool, false)
         event_threshold_minutes = optional(number, 15)
       }))
 
+      replica_kms_key_arn = optional(string, null)
       replication_time = optional(object({
         status       = optional(bool, false)
         time_minutes = optional(number, 15)
+      }))
+
+      source_selection_criteria = optional(object({
+        replica_modifications     = optional(bool, false)
+        sse_kms_encrypted_objects = optional(bool, false)
       }))
     }))
   })
