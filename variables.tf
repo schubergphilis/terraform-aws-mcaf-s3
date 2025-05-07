@@ -239,6 +239,16 @@ variable "replication_configuration" {
       dest_storage_class  = optional(string, null)
       replica_kms_key_arn = optional(string, null)
 
+      metrics = optional(object({
+        status = optional(bool, false)
+        event_threshold_minutes = optional(bool, false)
+      }))
+
+      replication_time = optional(object({
+        status = optional(bool, false)
+        time_minutes = optional(bool, false)
+      }))
+
       source_selection_criteria = optional(object({
         replica_modifications     = optional(bool, false)
         sse_kms_encrypted_objects = optional(bool, false)

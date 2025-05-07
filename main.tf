@@ -660,7 +660,31 @@ resource "aws_s3_bucket_replication_configuration" "default" {
             replica_kms_key_id = rule.value.replica_kms_key_arn
           }
         }
-      }
+
+        dynamic "metrics" {
+          for_each = rule.value.metrics != null ? [rule.value.metrics] : []
+
+          content {
+            status = rule.value.metrics.status ? "Enabled" : "Disabled"
+
+            event_threshold {
+              mintutes = rule.value.metrics.event_threshold_minutes
+            }
+          }
+        }
+
+
+        dynamic "replication_time" {
+          for_each = rule.value.replication_time != null ? [rule.value.replication_time] : []
+
+          content {
+            status = rule.value.replication_time.status ? "Enabled" : "Disabled"
+
+            time {
+              minutes = rule.value.replication_time.time_minutes
+            }
+          }
+        }
 
       dynamic "source_selection_criteria" {
         for_each = rule.value.source_selection_criteria != null ? { create = true } : {}
