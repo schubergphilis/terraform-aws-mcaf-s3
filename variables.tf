@@ -40,7 +40,7 @@ variable "access_control_policy" {
     grants = list(object({
       grantee = object({
         type       = string # Allowed values: "CanonicalUser", "Group", "AmazonCustomerByEmail"
-        identifier = optional(string, null) # Maps to id, uri, or email_address based on the grantee type
+        identifier = string # Maps to id, uri, or email_address based on the grantee type
       })
       permission = string
     }))
