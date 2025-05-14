@@ -34,13 +34,13 @@ variable "access_control_policy" {
     grants = list(object({
       grantee = object({
         type       = string
-        identifier = string
+        id = string
       })
       permission = string
     }))
   })
 
-  default = null # Allow the policy to be optional
+  default = null # Making it optional
 }
 
 variable "block_public_acls" {

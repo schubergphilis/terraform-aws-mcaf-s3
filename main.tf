@@ -165,19 +165,19 @@ resource "aws_s3_bucket_acl" "default" {
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
   dynamic "access_control_policy" {
-    for_each = var.access_control_policy != null ? [var.access_control_policy] : [] # Only iterate if the variable is defined
+    for_each = var.access_control_policy != null ? [var.access_control_policy] : []
 
     content {
       owner {
-        id = access_control_policy.value.owner.id # Dynamically access the values
+        id = access_control_policy.value.owner.id
       }
 
-      grant {
+      dynamic "grant" {
         for_each = access_control_policy.value.grants
         content {
           grantee {
             type       = grant.value.grantee.type
-            identifier = grant.value.grantee.identifier
+            id = grant.value.grantee.id
           }
           permission = grant.value.permission
         }
