@@ -26,6 +26,23 @@ variable "acl" {
   description = "The canned ACL to apply, defaults to `private`."
 }
 
+variable "access_control_policy" {
+  type = object({
+    owner = object({
+      id = string
+    })
+    grants = list(object({
+      grantee = object({
+        type       = string
+        identifier = string
+      })
+      permission = string
+    }))
+  })
+
+  default = null # Allow the policy to be optional
+}
+
 variable "block_public_acls" {
   type        = bool
   default     = true
