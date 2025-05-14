@@ -177,7 +177,9 @@ resource "aws_s3_bucket_acl" "default" {
         content {
           grantee {
             type       = grant.value.grantee.type
-            id = grant.value.grantee.id
+            id            = grant.value.grantee.type == "CanonicalUser" ? grant.value.grantee.identifier : null
+            uri           = grant.value.grantee.type == "Group" ? grant.value.grantee.identifier : null
+            email_address = grant.value.grantee.type == "AmazonCustomerByEmail" ? grant.value.grantee.identifier : null
           }
           permission = grant.value.permission
         }
