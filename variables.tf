@@ -26,6 +26,29 @@ variable "acl" {
   description = "The canned ACL to apply, defaults to `private`."
 }
 
+variable "use_acl" {
+  description = "Whether to use canned ACL (true) or access_control_policy (false)"
+  type        = bool
+  default     = true
+}
+
+variable "access_control_policy" {
+  type = object({
+    owner = object({
+      id = string
+    })
+    grants = list(object({
+      grantee = object({
+        type       = string # Allowed values: "CanonicalUser", "Group", "AmazonCustomerByEmail"
+        identifier = string # Maps to id, uri, or email_address based on the grantee type
+      })
+      permission = string
+    }))
+  })
+
+  default = null # Making it optional
+}
+
 variable "block_public_acls" {
   type        = bool
   default     = true
