@@ -34,9 +34,7 @@ variable "use_acl" {
 
 variable "access_control_policy" {
   type = object({
-    owner = object({
-      id = string
-    })
+    owner_id = string
     grants = list(object({
       grantee = object({
         type       = string # Allowed values: "CanonicalUser", "Group", "AmazonCustomerByEmail"
