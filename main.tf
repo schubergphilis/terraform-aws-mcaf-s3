@@ -169,7 +169,7 @@ resource "aws_s3_bucket_acl" "default" {
 
     content {
       owner {
-        id = access_control_policy.value.owner.id
+        id = access_control_policy.value.owner_id
       }
 
       dynamic "grant" {
