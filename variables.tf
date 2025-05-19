@@ -44,6 +44,17 @@ variable "access_control_policy" {
     }))
   })
 
+  validation {
+    condition = var.access_control_policy == null || alltrue([
+      for grant in var.access_control_policy.grants : (
+        grant.grantee.type == "CanonicalUser" || 
+        grant.grantee.type == "Group" || 
+        grant.grantee.type == "AmazonCustomerByEmail"
+      )
+    ])
+    error_message = "Every grantee 'type' in grants must be one of 'CanonicalUser', 'Group', or 'AmazonCustomerByEmail'."
+  }
+
   default = null # Making it optional
 }
 
