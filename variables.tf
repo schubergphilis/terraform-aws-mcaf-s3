@@ -26,12 +26,6 @@ variable "acl" {
   description = "The canned ACL to apply, defaults to `private`."
 }
 
-variable "use_acl" {
-  description = "Whether to use canned ACL (true) or access_control_policy (false)"
-  type        = bool
-  default     = true
-}
-
 variable "access_control_policy" {
   type = object({
     owner_id = string
