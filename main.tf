@@ -163,7 +163,7 @@ resource "aws_s3_bucket_acl" "default" {
   count = var.object_ownership_type == "ObjectWriter" ? 1 : 0
 
   bucket = aws_s3_bucket.default.id
-  acl    = acl = var.access_control_policy != null ? null : var.acl
+  acl = var.access_control_policy != null ? null : var.acl
   dynamic "access_control_policy" {
     for_each = var.access_control_policy != null ? [var.access_control_policy] : []
 
