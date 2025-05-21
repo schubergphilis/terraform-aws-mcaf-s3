@@ -49,7 +49,7 @@ variable "access_control_policy" {
     error_message = "Every grantee 'type' in grants must be one of 'CanonicalUser', 'Group', or 'AmazonCustomerByEmail'."
   }
 
-  default = null # Making it optional
+  default = null
 }
 
 variable "block_public_acls" {

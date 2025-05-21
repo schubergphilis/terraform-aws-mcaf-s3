@@ -164,6 +164,7 @@ resource "aws_s3_bucket_acl" "default" {
 
   bucket = aws_s3_bucket.default.id
   acl    = var.access_control_policy != null ? null : var.acl
+
   dynamic "access_control_policy" {
     for_each = var.access_control_policy != null ? [var.access_control_policy] : []
 
@@ -186,6 +187,7 @@ resource "aws_s3_bucket_acl" "default" {
       }
     }
   }
+
   depends_on = [aws_s3_bucket_ownership_controls.default]
 }
 
