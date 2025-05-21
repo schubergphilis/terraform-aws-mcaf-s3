@@ -26,6 +26,32 @@ variable "acl" {
   description = "The canned ACL to apply, defaults to `private`."
 }
 
+variable "access_control_policy" {
+  type = object({
+    owner_id = string
+    grants = list(object({
+      grantee = object({
+        type       = string # Allowed values: "CanonicalUser", "Group", "AmazonCustomerByEmail"
+        identifier = string # Maps to id, uri, or email_address based on the grantee type
+      })
+      permission = string
+    }))
+  })
+
+  validation {
+    condition = var.access_control_policy == null || alltrue([
+      for grant in var.access_control_policy.grants : (
+        grant.grantee.type == "CanonicalUser" ||
+        grant.grantee.type == "Group" ||
+        grant.grantee.type == "AmazonCustomerByEmail"
+      )
+    ])
+    error_message = "Every grantee 'type' in grants must be one of 'CanonicalUser', 'Group', or 'AmazonCustomerByEmail'."
+  }
+
+  default = null
+}
+
 variable "block_public_acls" {
   type        = bool
   default     = true

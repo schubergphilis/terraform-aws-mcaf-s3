@@ -163,7 +163,30 @@ resource "aws_s3_bucket_acl" "default" {
   count = var.object_ownership_type == "ObjectWriter" ? 1 : 0
 
   bucket = aws_s3_bucket.default.id
-  acl    = var.acl
+  acl    = var.access_control_policy != null ? null : var.acl
+
+  dynamic "access_control_policy" {
+    for_each = var.access_control_policy != null ? [var.access_control_policy] : []
+
+    content {
+      owner {
+        id = access_control_policy.value.owner_id
+      }
+
+      dynamic "grant" {
+        for_each = access_control_policy.value.grants
+        content {
+          grantee {
+            type          = grant.value.grantee.type
+            id            = grant.value.grantee.type == "CanonicalUser" ? grant.value.grantee.identifier : null
+            uri           = grant.value.grantee.type == "Group" ? grant.value.grantee.identifier : null
+            email_address = grant.value.grantee.type == "AmazonCustomerByEmail" ? grant.value.grantee.identifier : null
+          }
+          permission = grant.value.permission
+        }
+      }
+    }
+  }
 
   depends_on = [aws_s3_bucket_ownership_controls.default]
 }
