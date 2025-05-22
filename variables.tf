@@ -37,19 +37,23 @@ variable "access_control_policy" {
       permission = string
     }))
   })
+  default     = null
+  description = "The access control policy permissions for an S3 bucket object per grantee."
 
   validation {
-    condition = var.access_control_policy == null || alltrue([
-      for grant in var.access_control_policy.grants : (
-        grant.grantee.type == "CanonicalUser" ||
-        grant.grantee.type == "Group" ||
-        grant.grantee.type == "AmazonCustomerByEmail"
-      )
-    ])
+    condition = (
+      var.access_control_policy == null ?
+      true :
+      alltrue([
+        for grant in var.access_control_policy.grants : (
+          grant.grantee.type == "CanonicalUser" ||
+          grant.grantee.type == "Group" ||
+          grant.grantee.type == "AmazonCustomerByEmail"
+        )
+      ])
+    )
     error_message = "Every grantee 'type' in grants must be one of 'CanonicalUser', 'Group', or 'AmazonCustomerByEmail'."
   }
-
-  default = null
 }
 
 variable "block_public_acls" {

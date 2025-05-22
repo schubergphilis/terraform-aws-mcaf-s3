@@ -16,5 +16,5 @@ The following variables have been modified:
     - `noncurrent_version_transition` has changed from `map` to `list(object)`
     - `transition` has changed from `map` to `list(object)`
     - `prefix` has been moved to `filter.prefix` to be able to support all filter options
-    
+
 - `versioning`: default value has changed from `false` to `true`
