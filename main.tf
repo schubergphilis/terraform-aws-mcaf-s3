@@ -769,4 +769,3 @@ resource "aws_s3_bucket_versioning" "default" {
     status = var.versioning ? "Enabled" : "Suspended"
   }
 }
-

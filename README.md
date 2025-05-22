@@ -46,7 +46,7 @@ Or partitioned prefix, which uses the following format for the log file with par
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.70.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.98.0 |
 
 ## Modules
 
