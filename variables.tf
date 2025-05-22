@@ -37,6 +37,8 @@ variable "access_control_policy" {
       permission = string
     }))
   })
+  default     = null
+  description = "The access control policy permissions for an S3 bucket object per grantee."
 
   validation {
     condition = (
@@ -52,8 +54,6 @@ variable "access_control_policy" {
     )
     error_message = "Every grantee 'type' in grants must be one of 'CanonicalUser', 'Group', or 'AmazonCustomerByEmail'."
   }
-
-  default = null
 }
 
 variable "block_public_acls" {
