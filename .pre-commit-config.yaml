@@ -19,14 +19,14 @@ repos:
           - --allow-missing-credentials
       - id: detect-private-key
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.98.1
+    rev: v1.99.0
     hooks:
       - id: terraform_fmt
       - id: terraform_tflint
       - id: terraform_docs
       - id: terraform_validate
   - repo: https://github.com/bridgecrewio/checkov.git
-    rev: 3.2.388
+    rev: 3.2.429
     hooks:
       - id: checkov
         verbose: false
