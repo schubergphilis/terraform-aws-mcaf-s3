@@ -86,7 +86,7 @@ Or partitioned prefix, which uses the following format for the log file with par
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_access_control_policy"></a> [access\_control\_policy](#input\_access\_control\_policy) | n/a | <pre>object({<br/>    owner_id = string<br/>    grants = list(object({<br/>      grantee = object({<br/>        type       = string # Allowed values: "CanonicalUser", "Group", "AmazonCustomerByEmail"<br/>        identifier = string # Maps to id, uri, or email_address based on the grantee type<br/>      })<br/>      permission = string<br/>    }))<br/>  })</pre> | `null` | no |
+| <a name="input_access_control_policy"></a> [access\_control\_policy](#input\_access\_control\_policy) | The access control policy permissions for an S3 bucket object per grantee. | <pre>object({<br/>    owner_id = string<br/>    grants = list(object({<br/>      grantee = object({<br/>        type       = string # Allowed values: "CanonicalUser", "Group", "AmazonCustomerByEmail"<br/>        identifier = string # Maps to id, uri, or email_address based on the grantee type<br/>      })<br/>      permission = string<br/>    }))<br/>  })</pre> | `null` | no |
 | <a name="input_acl"></a> [acl](#input\_acl) | The canned ACL to apply, defaults to `private`. | `string` | `"private"` | no |
 | <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `true` | no |
 | <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `true` | no |
