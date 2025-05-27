@@ -336,6 +336,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         }
       }
 
+      dynamic "filter" {
+        for_each = rule.value.filter == null ? { create = true } : {}
+
+        content {}
+      }
+
       # -------------------------------
       # noncurrent_version_expiration (max 1 block)
       # -------------------------------
