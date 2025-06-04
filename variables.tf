@@ -146,7 +146,7 @@ variable "lifecycle_rule" {
     }))
 
     filter = optional(object({
-      prefix                   = optional(string, "")
+      prefix                   = optional(string)
       object_size_greater_than = optional(number)
       object_size_less_than    = optional(number)
 
@@ -159,7 +159,7 @@ variable "lifecycle_rule" {
       and = optional(object({
         object_size_greater_than = optional(number)
         object_size_less_than    = optional(number)
-        prefix                   = optional(string, "")
+        prefix                   = optional(string)
         tags                     = optional(map(string))
       }))
     }))

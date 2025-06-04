@@ -306,6 +306,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       # --------------------------------------------------
       # filter (max 1 block)
       # --------------------------------------------------
+      
       dynamic "filter" {
         for_each = rule.value.filter != null ? [rule.value.filter] : []
 
@@ -339,7 +340,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       dynamic "filter" {
         for_each = rule.value.filter == null ? { create = true } : {}
 
-        content {}
+        content { 
+          prefix = ""
+        }
       }
 
       # -------------------------------
@@ -774,4 +777,8 @@ resource "aws_s3_bucket_versioning" "default" {
   versioning_configuration {
     status = var.versioning ? "Enabled" : "Suspended"
   }
+}
+
+output "test" {
+  value = var.lifecycle_rule
 }
