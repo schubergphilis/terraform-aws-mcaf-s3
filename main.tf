@@ -129,12 +129,31 @@ data "aws_iam_policy_document" "malware_protection_policy" {
   }
 }
 
+data "aws_iam_policy_document" "bucket_key_encryption_policy_enforced" {
+  statement {
+    sid       = "EnforceBucketKeyEncryption"
+    actions   = ["s3:PutObject"]
+    effect    = "Deny"
+    resources = ["${aws_s3_bucket.default.arn}/*"]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
+      values   = [var.kms_key_arn]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "combined" {
   source_policy_documents = compact([
     local.policy,
     data.aws_iam_policy_document.ssl_policy.json,
     data.aws_iam_policy_document.logging_policy.json,
-    try(data.aws_iam_policy_document.malware_protection_policy["create"].json, "")
+    try(data.aws_iam_policy_document.malware_protection_policy["create"].json, ""),
+    var.bucket_key_encryption_enforced ? data.aws_iam_policy_document.bucket_key_encryption_policy_enforced.json : ""
   ])
 }
 

@@ -1,31 +1,3 @@
-variable "name" {
-  type        = string
-  default     = null
-  description = "The Name of the bucket. If omitted, Terraform will assign a random, unique name. Conflicts with `name_prefix`."
-
-  validation {
-    condition     = var.name != null ? length(var.name) <= 63 : true
-    error_message = "The name must be less than or equal to 63 characters in length"
-  }
-}
-
-variable "name_prefix" {
-  type        = string
-  default     = null
-  description = "Creates a unique bucket name beginning with the specified prefix. Conflicts with `name`."
-
-  validation {
-    condition     = var.name_prefix != null ? length(var.name_prefix) <= 37 : true
-    error_message = "The name prefix must be less than or equal to 37 characters in length"
-  }
-}
-
-variable "acl" {
-  type        = string
-  default     = "private"
-  description = "The canned ACL to apply, defaults to `private`."
-}
-
 variable "access_control_policy" {
   type = object({
     owner_id = string
@@ -39,7 +11,6 @@ variable "access_control_policy" {
   })
   default     = null
   description = "The access control policy permissions for an S3 bucket object per grantee."
-
   validation {
     condition = (
       var.access_control_policy == null ?
@@ -56,6 +27,12 @@ variable "access_control_policy" {
   }
 }
 
+variable "acl" {
+  type        = string
+  default     = "private"
+  description = "The canned ACL to apply, defaults to `private`."
+}
+
 variable "block_public_acls" {
   type        = bool
   default     = true
@@ -66,6 +43,12 @@ variable "block_public_policy" {
   type        = bool
   default     = true
   description = "Whether Amazon S3 should block public bucket policies for this bucket."
+}
+
+variable "bucket_key_encryption_enforced" {
+  type        = bool
+  default     = false
+  description = "Enforces the default key encryption for all objects in the bucket"
 }
 
 variable "cors_rule" {
@@ -105,13 +88,11 @@ variable "inventory_configuration" {
     frequency                = optional(string, "Weekly")
     included_object_versions = optional(string, "Current")
     optional_fields          = optional(list(string), null)
-
     destination = object({
       account_id = string
       bucket_arn = string
       format     = optional(string, "Parquet")
       prefix     = optional(string, null)
-
       encryption = optional(object({
         encryption_type = string
         kms_key_id      = optional(string, null)
@@ -134,27 +115,22 @@ variable "lifecycle_rule" {
   type = list(object({
     id      = string
     enabled = optional(bool, true)
-
     abort_incomplete_multipart_upload = optional(object({
       days_after_initiation = number
     }))
-
     expiration = optional(object({
       date                         = optional(string)
       days                         = optional(number)
       expired_object_delete_marker = optional(bool)
     }))
-
     filter = optional(object({
       prefix                   = optional(string)
       object_size_greater_than = optional(number)
       object_size_less_than    = optional(number)
-
       tag = optional(object({
         key   = string
         value = string
       }))
-
       # 'and' block for combining multiple predicates
       and = optional(object({
         object_size_greater_than = optional(number)
@@ -163,25 +139,21 @@ variable "lifecycle_rule" {
         tags                     = optional(map(string))
       }))
     }))
-
     noncurrent_version_expiration = optional(object({
       newer_noncurrent_versions = optional(number)
       noncurrent_days           = optional(number)
     }))
-
     noncurrent_version_transition = optional(list(object({
       newer_noncurrent_versions = optional(number)
       noncurrent_days           = optional(number)
       storage_class             = string
     })))
-
     transition = optional(list(object({
       date          = optional(string)
       days          = optional(number)
       storage_class = string
     })))
   }))
-
   default     = []
   description = "List of lifecycle configuration settings."
 }
@@ -195,10 +167,8 @@ variable "logging" {
       partition_date_source = optional(string, "DeliveryTime") # Required if format_type is "partitioned", default is DeliveryTime
     }))
   })
-
   default     = null
   description = "Logging configuration, logging is disabled by default."
-
   validation {
     condition = var.logging == null ? true : (
       # target_object_key_format should be null or have a valid format_type
@@ -236,6 +206,32 @@ variable "malware_protection" {
   description = "AWS GuardDuty malware protection bucket protection settings."
 }
 
+variable "name" {
+  type        = string
+  default     = null
+  description = "The Name of the bucket. If omitted, Terraform will assign a random, unique name. Conflicts with `name_prefix`."
+  validation {
+    condition     = var.name != null ? length(var.name) <= 63 : true
+    error_message = "The name must be less than or equal to 63 characters in length"
+  }
+}
+
+variable "name_prefix" {
+  type        = string
+  default     = null
+  description = "Creates a unique bucket name beginning with the specified prefix. Conflicts with `name`."
+  validation {
+    condition     = var.name_prefix != null ? length(var.name_prefix) <= 37 : true
+    error_message = "The name prefix must be less than or equal to 37 characters in length"
+  }
+}
+
+variable "object_lock_days" {
+  type        = number
+  default     = null
+  description = "The number of days that you want to specify for the default retention period."
+}
+
 variable "object_lock_mode" {
   type        = string
   default     = null
@@ -248,16 +244,16 @@ variable "object_lock_years" {
   description = "The number of years that you want to specify for the default retention period."
 }
 
-variable "object_lock_days" {
-  type        = number
-  default     = null
-  description = "The number of days that you want to specify for the default retention period."
-}
-
 variable "object_ownership_type" {
   type        = string
   default     = "BucketOwnerEnforced"
   description = "The object ownership type for the objects in S3 Bucket, defaults to BucketOwnerEnforced."
+}
+
+variable "policy" {
+  type        = string
+  default     = null
+  description = "A valid bucket policy JSON document."
 }
 
 variable "replication_configuration" {
@@ -268,17 +264,14 @@ variable "replication_configuration" {
       dest_bucket         = string
       dest_storage_class  = optional(string, null)
       replica_kms_key_arn = optional(string, null)
-
       metrics = optional(object({
         status                  = optional(bool, false)
         event_threshold_minutes = optional(number, 15)
       }))
-
       replication_time = optional(object({
         status       = optional(bool, false)
         time_minutes = optional(number, 15)
       }))
-
       source_selection_criteria = optional(object({
         replica_modifications     = optional(bool, false)
         sse_kms_encrypted_objects = optional(bool, false)
@@ -295,18 +288,6 @@ variable "restrict_public_buckets" {
   description = "Whether Amazon S3 should restrict public bucket policies for this bucket."
 }
 
-variable "policy" {
-  type        = string
-  default     = null
-  description = "A valid bucket policy JSON document."
-}
-
-variable "versioning" {
-  type        = bool
-  default     = true
-  description = "Versioning is a means of keeping multiple variants of an object in the same bucket."
-}
-
 variable "tags" {
   type        = map(string)
   default     = {}
@@ -317,9 +298,14 @@ variable "transition_default_minimum_object_size" {
   type        = string
   default     = null
   description = "The default minimum object size behavior applied to the lifecycle configuration. Valid values: all_storage_classes_128K (default), varies_by_storage_class"
-
   validation {
     condition     = var.transition_default_minimum_object_size != null ? contains(["all_storage_classes_128K", "varies_by_storage_class"], var.transition_default_minimum_object_size) : true
     error_message = "Allowed values for transition_default_minimum_object_size are \"all_storage_classes_128K\", \"varies_by_storage_class\"."
   }
+}
+
+variable "versioning" {
+  type        = bool
+  default     = true
+  description = "Versioning is a means of keeping multiple variants of an object in the same bucket."
 }
