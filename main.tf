@@ -445,6 +445,10 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
       condition     = var.object_lock_mode == null || length(var.logging_source_bucket_arns) == 0
       error_message = "You're trying to allow (other buckets) logging to this bucket and enable object locking on the same bucket! Object lock will prevent server access logs from written to the bucket. Either remove the logging source buckets configuration or remove the object lock configuration."
     }
+    precondition {
+      condition     = var.object_lock_mode == null || var.object_lock_days != null || var.object_lock_years != null
+      error_message = "When object_lock_mode is set, either object_lock_days or object_lock_years must also be set."
+    }
   }
 }
 
