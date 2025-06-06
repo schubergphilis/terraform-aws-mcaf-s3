@@ -319,3 +319,9 @@ variable "transition_default_minimum_object_size" {
     error_message = "Allowed values for transition_default_minimum_object_size are \"all_storage_classes_128K\", \"varies_by_storage_class\"."
   }
 }
+
+variable "bucket_key_encryption_enforced" {
+  type        = bool
+  default     = false
+  description = "Enforces the default key encryption for all objects in the bucket"
+}

@@ -129,12 +129,35 @@ data "aws_iam_policy_document" "malware_protection_policy" {
   }
 }
 
+data "aws_iam_policy_document" "bucket_key_encryption_policy_enforced" {
+
+  statement {
+    sid = "EnforceBucketKeyEncryption"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    effect  = "Deny"
+    actions = ["s3:PutObject"]
+    resources = [
+      "${aws_s3_bucket.default.arn}/*"
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
+      values   = [var.kms_key_arn]
+    }
+  }
+}
+
+
 data "aws_iam_policy_document" "combined" {
   source_policy_documents = compact([
     local.policy,
     data.aws_iam_policy_document.ssl_policy.json,
     data.aws_iam_policy_document.logging_policy.json,
-    try(data.aws_iam_policy_document.malware_protection_policy["create"].json, "")
+    try(data.aws_iam_policy_document.malware_protection_policy["create"].json, ""),
+    var.bucket_key_encryption_enforced ? data.aws_iam_policy_document.bucket_key_encryption_policy_enforced.json : "",
   ])
 }
 
@@ -334,6 +357,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
             }
           }
         }
+      }
+
+      dynamic "filter" {
+        for_each = rule.value.filter == null ? { create = true } : {}
+
+        content {}
       }
 
       # -------------------------------
@@ -769,4 +798,3 @@ resource "aws_s3_bucket_versioning" "default" {
     status = var.versioning ? "Enabled" : "Suspended"
   }
 }
-
