@@ -240,6 +240,15 @@ variable "object_lock_mode" {
   type        = string
   default     = null
   description = "The default object Lock retention mode to apply to new objects."
+
+  validation {
+    condition = (
+      var.object_lock_mode == null
+      ? true
+      : contains(["COMPLIANCE", "GOVERNANCE"], var.object_lock_mode)
+    )
+    error_message = "If set, object lock mode should be COMPLIANCE or GOVERNANCE"
+  }
 }
 
 variable "object_lock_years" {
