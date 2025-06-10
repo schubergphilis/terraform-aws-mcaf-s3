@@ -740,6 +740,15 @@ resource "aws_s3_bucket_replication_configuration" "default" {
 }
 
 ###
+# Requester Pays configuration
+###
+
+resource "aws_s3_bucket_request_payment_configuration" "default" {
+  bucket = aws_s3_bucket.default.bucket
+  payer  = var.request_payer
+}
+
+###
 # Server-Side Encryption
 ###
 

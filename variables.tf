@@ -298,6 +298,17 @@ variable "replication_configuration" {
   description = "Bucket replication configuration settings, specify the rules map keys as integers as these are used to determine the priority of the rules in case of conflict."
 }
 
+variable "request_payer" {
+  type        = string
+  default     = "BucketOwner"
+  description = "The request payer for the bucket, defaults to BucketOwner. Valid values: BucketOwner, Requester."
+
+  validation {
+    condition     = contains(["BucketOwner", "Requester"], var.request_payer)
+    error_message = "Allowed values for request_payer are 'BucketOwner' or 'Requester'."
+  }
+}
+
 variable "restrict_public_buckets" {
   type        = bool
   default     = true
