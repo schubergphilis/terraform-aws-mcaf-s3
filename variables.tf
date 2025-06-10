@@ -236,6 +236,15 @@ variable "object_lock_mode" {
   type        = string
   default     = null
   description = "The default object Lock retention mode to apply to new objects."
+
+  validation {
+    condition = (
+      var.object_lock_mode == null
+      ? true
+      : contains(["COMPLIANCE", "GOVERNANCE"], var.object_lock_mode)
+    )
+    error_message = "If set, object lock mode should be COMPLIANCE or GOVERNANCE"
+  }
 }
 
 variable "object_lock_years" {
@@ -280,6 +289,17 @@ variable "replication_configuration" {
   })
   default     = null
   description = "Bucket replication configuration settings, specify the rules map keys as integers as these are used to determine the priority of the rules in case of conflict."
+}
+
+variable "request_payer" {
+  type        = string
+  default     = "BucketOwner"
+  description = "The request payer for the bucket, defaults to BucketOwner. Valid values: BucketOwner, Requester."
+
+  validation {
+    condition     = contains(["BucketOwner", "Requester"], var.request_payer)
+    error_message = "Allowed values for request_payer are 'BucketOwner' or 'Requester'."
+  }
 }
 
 variable "restrict_public_buckets" {
