@@ -5,6 +5,20 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.0 - 2025-06-10
+
+### What's Changed
+
+#### 🚀 Features
+
+* feature: Enable Requester Pays feature (#65) @fatbasstard
+
+#### 🐛 Bug Fixes
+
+* fix: improving validation on object lock settings (#67) @macampo
+
+**Full Changelog**: https://github.com/schubergphilis/terraform-aws-mcaf-s3/compare/v1.4.3...v1.5.0
+
 ## v1.4.3 - 2025-06-05
 
 ### What's Changed
