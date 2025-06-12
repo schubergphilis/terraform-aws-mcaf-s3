@@ -8,6 +8,7 @@ locals {
   # On/Off switches for optional resources and configuration
   bucket_key_enabled                       = var.kms_key_arn != null ? true : false
   cors_rule_enabled                        = var.cors_rule != null ? { create = true } : {}
+  bucket_key_encryption_enforced           = var.bucket_key_encryption_enforced ? { create = true } : {}
   logging_partitioned_prefix_enabled       = try(var.logging.target_object_key_format.format_type, null) == "partitioned" ? { create = true } : {}
   logging_simple_prefix_enabled            = try(var.logging.target_object_key_format.format_type, null) == "simple" ? { create = true } : {}
   logging_target_object_key_format_enabled = try(var.logging.target_object_key_format, null) != null ? { create = true } : {}
@@ -130,6 +131,8 @@ data "aws_iam_policy_document" "malware_protection_policy" {
 }
 
 data "aws_iam_policy_document" "bucket_key_encryption_policy_enforced" {
+  for_each = local.bucket_key_encryption_enforced
+
   statement {
     sid       = "EnforceBucketKeyEncryption"
     actions   = ["s3:PutObject"]
@@ -153,7 +156,7 @@ data "aws_iam_policy_document" "combined" {
     data.aws_iam_policy_document.ssl_policy.json,
     data.aws_iam_policy_document.logging_policy.json,
     try(data.aws_iam_policy_document.malware_protection_policy["create"].json, ""),
-    var.bucket_key_encryption_enforced ? data.aws_iam_policy_document.bucket_key_encryption_policy_enforced.json : ""
+    try(data.aws_iam_policy_document.bucket_key_encryption_policy_enforced["create"].json, "")
   ])
 }
 
