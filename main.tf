@@ -1,6 +1,6 @@
 locals {
   account_id            = data.aws_caller_identity.default.account_id
-  account_region        = data.aws_region.default.name
+  account_region        = data.aws_region.default.region
   logging_permissions   = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
   malware_iam_role_name = aws_s3_bucket.default.id
   policy                = var.policy != null ? var.policy : null
