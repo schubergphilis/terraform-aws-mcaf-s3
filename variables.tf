@@ -265,6 +265,12 @@ variable "policy" {
   description = "A valid bucket policy JSON document."
 }
 
+variable "region" {
+  type        = string
+  default     = null
+  description = "The AWS region where the bucket will be created. If omitted, the default provider region is used."
+}
+
 variable "replication_configuration" {
   type = object({
     iam_role_arn = string
@@ -329,3 +335,4 @@ variable "versioning" {
   default     = true
   description = "Versioning is a means of keeping multiple variants of an object in the same bucket."
 }
+

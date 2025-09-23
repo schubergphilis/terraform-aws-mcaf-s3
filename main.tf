@@ -1,6 +1,5 @@
 locals {
   account_id            = data.aws_caller_identity.default.account_id
-  account_region        = data.aws_region.default.name
   logging_permissions   = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
   malware_iam_role_name = aws_s3_bucket.default.id
   policy                = var.policy != null ? var.policy : null
@@ -17,11 +16,14 @@ locals {
   replication_configuration_enabled        = var.replication_configuration != null ? { create = true } : {}
 }
 
+data "aws_caller_identity" "default" {}
+
 ################################################################################
 # S3 Bucket & Bucket Policy
 ################################################################################
 
 resource "aws_s3_bucket" "default" {
+  region              = var.region
   bucket              = var.name
   bucket_prefix       = var.name_prefix
   force_destroy       = var.force_destroy
@@ -161,6 +163,7 @@ data "aws_iam_policy_document" "combined" {
 }
 
 resource "aws_s3_bucket_policy" "default" {
+  region = var.region
   bucket = aws_s3_bucket.default.id
   policy = data.aws_iam_policy_document.combined.json
 }
@@ -174,6 +177,7 @@ resource "aws_s3_bucket_policy" "default" {
 ###
 
 resource "aws_s3_bucket_ownership_controls" "default" {
+  region = var.region
   bucket = aws_s3_bucket.default.id
 
   rule {
@@ -184,6 +188,7 @@ resource "aws_s3_bucket_ownership_controls" "default" {
 resource "aws_s3_bucket_acl" "default" {
   count = var.object_ownership_type == "ObjectWriter" ? 1 : 0
 
+  region = var.region
   bucket = aws_s3_bucket.default.id
   acl    = var.access_control_policy != null ? null : var.acl
 
@@ -220,6 +225,7 @@ resource "aws_s3_bucket_acl" "default" {
 resource "aws_s3_bucket_cors_configuration" "default" {
   for_each = local.cors_rule_enabled
 
+  region = var.region
   bucket = aws_s3_bucket.default.bucket
 
   cors_rule {
@@ -238,6 +244,7 @@ resource "aws_s3_bucket_cors_configuration" "default" {
 resource "aws_s3_bucket_inventory" "default" {
   for_each = var.inventory_configuration
 
+  region                   = var.region
   bucket                   = aws_s3_bucket.default.id
   enabled                  = each.value.enabled
   included_object_versions = each.value.included_object_versions
@@ -291,6 +298,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
   #checkov:skip=CKV_AWS_300: Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer of the module should decide
   count = length(var.lifecycle_rule) > 0 ? 1 : 0
 
+  region                                 = var.region
   bucket                                 = aws_s3_bucket.default.bucket
   transition_default_minimum_object_size = var.transition_default_minimum_object_size
 
@@ -412,6 +420,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 resource "aws_s3_bucket_logging" "default" {
   count = var.logging != null ? 1 : 0
 
+  region        = var.region
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.logging.target_bucket
   target_prefix = var.logging.target_prefix
@@ -452,6 +461,7 @@ resource "aws_s3_bucket_logging" "default" {
 resource "aws_s3_bucket_object_lock_configuration" "default" {
   for_each = local.object_lock_enabled
 
+  region = var.region
   bucket = aws_s3_bucket.default.bucket
 
   rule {
@@ -481,7 +491,8 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
 resource "aws_guardduty_malware_protection_plan" "default" {
   for_each = local.malware_protection_enabled
 
-  role = module.s3_malware_protection_role["create"].arn
+  region = var.region
+  role   = module.s3_malware_protection_role["create"].arn
 
   protected_resource {
     s3_bucket {
@@ -515,7 +526,7 @@ data "aws_iam_policy_document" "s3_malware_protection_assume_role" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:guardduty:${local.account_region}:${local.account_id}:malware-protection-plan/*"]
+      values   = ["arn:aws:guardduty:${var.region}:${local.account_id}:malware-protection-plan/*"]
     }
   }
 }
@@ -533,7 +544,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
       "events:RemoveTargets"
     ]
     resources = [
-      "arn:aws:events:${local.account_region}:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+      "arn:aws:events:${var.region}:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
     ]
     condition {
       test     = "StringEquals"
@@ -550,7 +561,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
       "events:ListTargetsByRule"
     ]
     resources = [
-      "arn:aws:events:${local.account_region}:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+      "arn:aws:events:${var.region}:${local.account_id}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
     ]
   }
 
@@ -651,7 +662,7 @@ data "aws_iam_policy_document" "s3_malware_protection_policy" {
       condition {
         test     = "StringLike"
         variable = "kms:ViaService"
-        values   = ["s3.${local.account_region}.amazonaws.com"]
+        values   = ["s3.${var.region}.amazonaws.com"]
       }
     }
   }
@@ -678,6 +689,7 @@ module "s3_malware_protection_role" {
 resource "aws_s3_bucket_notification" "eventbridge" {
   count = var.eventbridge_enabled ? 1 : 0
 
+  region      = var.region
   bucket      = aws_s3_bucket.default.id
   eventbridge = var.eventbridge_enabled
 }
@@ -689,6 +701,7 @@ resource "aws_s3_bucket_notification" "eventbridge" {
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = local.replication_configuration_enabled
 
+  region = var.region
   role   = var.replication_configuration.iam_role_arn
   bucket = aws_s3_bucket.default.id
 
@@ -766,6 +779,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
 ###
 
 resource "aws_s3_bucket_request_payment_configuration" "default" {
+  region = var.region
   bucket = aws_s3_bucket.default.bucket
   payer  = var.request_payer
 }
@@ -775,6 +789,7 @@ resource "aws_s3_bucket_request_payment_configuration" "default" {
 ###
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+  region = var.region
   bucket = aws_s3_bucket.default.bucket
 
   rule {
@@ -792,6 +807,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
 ###
 
 resource "aws_s3_bucket_public_access_block" "default" {
+  region                  = var.region
   bucket                  = aws_s3_bucket.default.id
   block_public_acls       = var.block_public_acls
   block_public_policy     = var.block_public_policy
@@ -804,6 +820,7 @@ resource "aws_s3_bucket_public_access_block" "default" {
 ###
 
 resource "aws_s3_bucket_versioning" "default" {
+  region = var.region
   bucket = aws_s3_bucket.default.id
 
   versioning_configuration {
