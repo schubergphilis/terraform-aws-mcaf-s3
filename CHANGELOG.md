@@ -5,6 +5,20 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.0.0 - 2025-09-24
+
+### What's Changed
+
+#### 🚀 Features
+
+* feat!: Add region support (#71) @shoekstra
+
+#### 📖 Documentation
+
+* docs: Upgrading to v2 (#72) @shoekstra
+
+**Full Changelog**: https://github.com/schubergphilis/terraform-aws-mcaf-s3/compare/v1.5.2...v2.0.0
+
 ## v1.5.2 - 2025-06-12
 
 ### What's Changed
