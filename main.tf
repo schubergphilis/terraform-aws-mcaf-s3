@@ -301,7 +301,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
   #checkov:skip=CKV_AWS_300: Ensure S3 lifecycle configuration sets period for aborting failed uploads - consumer of the module should decide
   count = length(var.lifecycle_rule) > 0 ? 1 : 0
 
-  region                                 = local.account_region
+  #region                                 = local.account_region
   bucket                                 = aws_s3_bucket.default.bucket
   transition_default_minimum_object_size = var.transition_default_minimum_object_size
 
