@@ -52,7 +52,7 @@ Or partitioned prefix, which uses the following format for the log file with par
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_s3_malware_protection_role"></a> [s3\_malware\_protection\_role](#module\_s3\_malware\_protection\_role) | schubergphilis/mcaf-role/aws | ~> 0.4.0 |
+| <a name="module_s3_malware_protection_role"></a> [s3\_malware\_protection\_role](#module\_s3\_malware\_protection\_role) | schubergphilis/mcaf-role/aws | ~> 0.4 |
 
 ## Resources
 
