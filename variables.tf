@@ -63,6 +63,12 @@ variable "cors_rule" {
   description = "The CORS rule for the S3 bucket"
 }
 
+variable "create_policy" {
+  type        = bool
+  default     = true
+  description = "Whether to create a bucket policy for this bucket."
+}
+
 variable "eventbridge_enabled" {
   type        = bool
   default     = false

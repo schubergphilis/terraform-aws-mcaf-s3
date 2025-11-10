@@ -3,7 +3,6 @@ locals {
   account_region        = var.region != null ? var.region : data.aws_region.default.region
   logging_permissions   = length(var.logging_source_bucket_arns) > 0 ? { create = true } : {}
   malware_iam_role_name = aws_s3_bucket.default.id
-  policy                = var.policy != null ? var.policy : null
 
   # On/Off switches for optional resources and configuration
   bucket_key_enabled                       = var.kms_key_arn != null ? true : false
@@ -157,7 +156,7 @@ data "aws_iam_policy_document" "bucket_key_encryption_policy_enforced" {
 
 data "aws_iam_policy_document" "combined" {
   source_policy_documents = compact([
-    local.policy,
+    var.policy != null ? var.policy : null,
     data.aws_iam_policy_document.ssl_policy.json,
     data.aws_iam_policy_document.logging_policy.json,
     try(data.aws_iam_policy_document.malware_protection_policy["create"].json, ""),
@@ -166,6 +165,8 @@ data "aws_iam_policy_document" "combined" {
 }
 
 resource "aws_s3_bucket_policy" "default" {
+  count = var.create_policy ? 1 : 0
+
   region = local.account_region
   bucket = aws_s3_bucket.default.id
   policy = data.aws_iam_policy_document.combined.json
