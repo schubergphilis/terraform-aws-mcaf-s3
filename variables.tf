@@ -45,6 +45,17 @@ variable "block_public_policy" {
   description = "Whether Amazon S3 should block public bucket policies for this bucket."
 }
 
+variable "blocked_encryption_types" {
+  type        = list(string)
+  default     = ["SSE-C"]
+  description = "List of encryption types to block for S3 bucket objects. Valid values: `NONE` (unblocks all encryption types), `SSE-C` (blocks SSE-C encrypted uploads)."
+
+  validation {
+    condition     = alltrue([for v in var.blocked_encryption_types : contains(["NONE", "SSE-C"], v)])
+    error_message = "Valid values for blocked_encryption_types are \"NONE\" and \"SSE-C\"."
+  }
+}
+
 variable "bucket_key_encryption_enforced" {
   type        = bool
   default     = false

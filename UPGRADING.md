@@ -2,6 +2,20 @@
 
 This document captures required refactoring on your part when upgrading to a module version that contains breaking changes.
 
+## Upgrading to v3.0.0
+
+### Key Changes
+
+- A new variable `blocked_encryption_types` has been added to control which encryption types are blocked for S3 bucket objects.
+- Starting in March 2026, Amazon S3 automatically blocks SSE-C uploads for all new buckets. To align with this behaviour, the default value is set to `["SSE-C"]`.
+- For existing buckets that previously had `blocked_encryption_types` set to `null` in the remote state, you will need to explicitly set `blocked_encryption_types = ["NONE"]` to preserve the previous behaviour.
+
+#### Variables
+
+The following variables have been added:
+
+- `blocked_encryption_types`: defaults to `["SSE-C"]`
+
 ## Upgrading to v2.0.0
 
 ### Key Changes
