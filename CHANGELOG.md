@@ -5,6 +5,20 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.0.0 - 2026-04-22
+
+### What's Changed
+
+#### 🚀 Features
+
+* feat!: Add blocked_encryption_types variable with SSE-C default (#74) @marwinbaumannsbp
+
+#### 🧺 Miscellaneous
+
+* chore: allow for latest 0.x mcaf-role versions (#73) @tmoreau-sbp
+
+**Full Changelog**: https://github.com/schubergphilis/terraform-aws-mcaf-s3/compare/v2.0.0...v3.0.0
+
 ## v2.0.0 - 2025-09-24
 
 ### What's Changed
