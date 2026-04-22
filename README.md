@@ -39,14 +39,14 @@ Or partitioned prefix, which uses the following format for the log file with par
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.40.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.40.0 |
 
 ## Modules
 
@@ -92,6 +92,7 @@ Or partitioned prefix, which uses the following format for the log file with par
 | <a name="input_acl"></a> [acl](#input\_acl) | The canned ACL to apply, defaults to `private`. | `string` | `"private"` | no |
 | <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `true` | no |
 | <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `true` | no |
+| <a name="input_blocked_encryption_types"></a> [blocked\_encryption\_types](#input\_blocked\_encryption\_types) | List of encryption types to block for S3 bucket objects. Valid values: `NONE` (unblocks all encryption types), `SSE-C` (blocks SSE-C encrypted uploads). | `list(string)` | <pre>[<br/>  "SSE-C"<br/>]</pre> | no |
 | <a name="input_bucket_key_encryption_enforced"></a> [bucket\_key\_encryption\_enforced](#input\_bucket\_key\_encryption\_enforced) | Enforces the default key encryption for all objects in the bucket | `bool` | `false` | no |
 | <a name="input_cors_rule"></a> [cors\_rule](#input\_cors\_rule) | The CORS rule for the S3 bucket | <pre>object({<br/>    allowed_headers = list(string)<br/>    allowed_methods = list(string)<br/>    allowed_origins = list(string)<br/>    expose_headers  = list(string)<br/>    max_age_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_eventbridge_enabled"></a> [eventbridge\_enabled](#input\_eventbridge\_enabled) | Whether to enable Amazon EventBridge notifications. | `bool` | `false` | no |

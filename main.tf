@@ -796,7 +796,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   bucket = aws_s3_bucket.default.bucket
 
   rule {
-    bucket_key_enabled = local.bucket_key_enabled
+    blocked_encryption_types = var.blocked_encryption_types
+    bucket_key_enabled       = local.bucket_key_enabled
 
     apply_server_side_encryption_by_default {
       kms_master_key_id = var.kms_key_arn
